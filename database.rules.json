@@ -9,6 +9,30 @@
         ".write": "$user_id === auth.uid",
         ".read": "$user_id === auth.uid"
       }
+    },
+    "hoverboard": {
+      ".read": true,
+      ".write": false,
+      "ratings": {
+        ".read": false,
+        ".write": false,
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid"
+        }
+      },
+      "userSessions": {
+        ".read": false,
+        ".write": false,
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid"
+        }
+      },
+      "speakers": {
+        ".read": true,
+        ".write": "root.child('users').child(auth.uid).child('rules').child('speakers').val() === true"
+      }
     }
   }
 }
