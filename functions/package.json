@@ -2,7 +2,9 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+    "predeploy": "npm run-script build",
+    "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
     "firebase-admin": "~5.4.0",
