@@ -4,4 +4,6 @@ const firebaseConf = functions.config().firebase
 const firebaseApp = firebaseAdmin.initializeApp(firebaseConf)
 import {migrateToFirestore} from './migrateToFirestore'
 
-exports.migrateToFirestore = functions.https.onRequest(migrateToFirestore(firebaseApp));
+export = {
+    migrateToFirestore: functions.https.onRequest(migrateToFirestore(firebaseApp))
+}
