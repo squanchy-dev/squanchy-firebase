@@ -1,9 +1,17 @@
 {
   "name": "functions",
   "description": "Cloud Functions for Firebase",
+  "scripts": {
+    "build": "gulp build"
+  },
   "dependencies": {
     "firebase-admin": "~5.4.0",
     "firebase-functions": "^0.7.0"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^3.2.2",
+    "typescript": "^2.5.3"
+  }
 }
