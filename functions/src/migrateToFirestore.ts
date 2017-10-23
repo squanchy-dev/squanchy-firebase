@@ -2,7 +2,7 @@ import firebaseAdmin = require('firebase-admin')
 import {Request, Response} from 'express'
 import firebaseApp = firebaseAdmin.app.App
 
-const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Request, response: Response) => {
+export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const designCategory = firestore.collection('categories').doc('xA41e90i2yqopYycx1fm')
     const days = firestore.collection('days')
@@ -125,8 +125,6 @@ const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Request, resp
         response.status(500).send()
     })
 }
-
-module.exports = { migrateToFirestore }
 
 const orNull = val => val || null
 
