@@ -1,4 +1,8 @@
-const migrateToFirestore = (firebaseApp) => (request, response) => {
+import firebaseAdmin = require('firebase-admin')
+import {Request, Response} from 'express'
+import firebaseApp = firebaseAdmin.app.App
+
+const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const designCategory = firestore.collection('categories').doc('xA41e90i2yqopYycx1fm')
     const days = firestore.collection('days')
@@ -17,8 +21,8 @@ const migrateToFirestore = (firebaseApp) => (request, response) => {
         console.log('Add all days')
         return Promise.all(data.days.days.map(_day => {
             return days.add(day(new Date(_day.date), _day.position))
-                .then(docRef => Object.assign({}, _day, { docRef }))
-        })).then(_days => Object.assign({}, data, { days: { days: _days } }))
+                .then(docRef => ({..._day, docRef }))
+        })).then(_days => ({...data, days: { days: _days } }))
     }
 
     const addAllSpeakers = data => {
@@ -36,24 +40,24 @@ const migrateToFirestore = (firebaseApp) => (request, response) => {
                     _speaker.twitter_username,
                     userRef
                 )))
-                .then(docRef => Object.assign({}, _speaker, { docRef }))
-        })).then(_speakers => Object.assign({}, data, { speakers: { speakers: _speakers } }))
+                .then(docRef => ({..._speaker, docRef }))
+        })).then(_speakers => ({...data, speakers: { speakers: _speakers } }))
     }
 
     const addAllPlaces = data => {
         console.log('Add all places')
         return Promise.all(data.places.places.map(_place => {
             return places.add(place(_place.name, _place.floor))
-                .then(docRef => Object.assign({}, _place, { docRef }))
-        })).then(_places => Object.assign({}, data, { places: { places: _places } }))
+                .then(docRef => ({..._place, docRef }))
+        })).then(_places => ({...data, places: { places: _places } }))
     }
 
     const addAllTracks = data => {
         console.log('Add all tracks')
         return Promise.all(data.tracks.tracks.map(_track => {
             return tracks.add(track(_track.accent_color, _track.icon_url, _track.name, _track.text_color))
-                .then(docRef => Object.assign({}, _track, { docRef }))
-        })).then(_tracks => Object.assign({}, data, { tracks: { tracks: _tracks } }))
+                .then(docRef => ({..._track, docRef }))
+        })).then(_tracks => ({...data, tracks: { tracks: _tracks } }))
     }
 
     const addAllEvents = data => {
@@ -99,7 +103,7 @@ const migrateToFirestore = (firebaseApp) => (request, response) => {
     }
 
     const speakerRefsFor = (speakers, speakerIds) => speakers.filter(speaker => {
-        ids = speakerIds || []
+        const ids = speakerIds || []
         ids.includes(speaker.id)
     }).map(speaker => speaker.docRef)
 
@@ -160,12 +164,12 @@ const speaker = (address, bio, company_name, company_url, job_description, perso
     twitter_handle: orNull(twitter_handle),
     user_profile: orNull(user_profile)
 })
-const submission = (abstract, category, level, notes, private, speakers, tags, title, type) => ({
+const submission = (abstract, category, level, notes, isPrivate, speakers, tags, title, type) => ({
     abstract: orNull(abstract),
     category: orNull(category),
     level: orNull(level),
     notes: orNull(notes),
-    private: orNull(private),
+    private: orNull(isPrivate),
     speakers: orNull(speakers),
     tags: orNull(tags),
     title: orNull(title),
