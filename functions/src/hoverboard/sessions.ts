@@ -1,8 +1,8 @@
 import { Firestore } from '../firebase'
 import { HoverboardSpeaker } from './speakers'
-import { SessionData, PlaceData, DayData, SubmissionData, TrackData, extract, LevelData } from '../data'
+import { SessionData, PlaceData, DayData, SubmissionData, TrackData, extract, LevelData, Reference, SpeakerData } from '../data'
 
-export const extractSessions = (firestore: Firestore, speakers: HoverboardSpeaker[]): Promise<HoverboardSession[]> => {
+export const extractSessions = (firestore: Firestore): Promise<HoverboardSession[]> => {
     return firestore.collection('events').get()
         .then(snapshot => snapshot.docs.map(doc => ({ ...doc.data() as SessionData, id: doc.id })))
         .then(sessionsData => {
@@ -24,7 +24,8 @@ export const extractSessions = (firestore: Firestore, speakers: HoverboardSpeake
                     place,
                     day,
                     track,
-                    submission
+                    submission,
+                    speakers: submission.speakers.map(it => it.id)
                 }))
             }))
         })
@@ -59,4 +60,5 @@ interface FlattenedSubmission {
     readonly tags: string[]
     readonly title: string
     readonly type: string
+    readonly speakers: Reference<SpeakerData>[]
 }
