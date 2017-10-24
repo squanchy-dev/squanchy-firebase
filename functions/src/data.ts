@@ -1,4 +1,5 @@
 export interface Reference<T> {
+    id: string
     get(): Promise<{data(): T}>
 }
 
