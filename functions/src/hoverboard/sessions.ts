@@ -35,7 +35,7 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
             id: session.id,
             language: 'English',
             presentation: null,
-            speakers: [],
+            speakers: session.speakers,
             tags: [session.track.name],
             title: session.submission.title
         })))
