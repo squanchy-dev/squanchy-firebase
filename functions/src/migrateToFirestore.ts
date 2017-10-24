@@ -102,10 +102,12 @@ export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Reques
         }
     }
 
-    const speakerRefsFor = (speakers: any, speakerIds: any) => speakers.filter((speaker: any) => {
+    const speakerRefsFor = (speakers: any[], speakerIds: string[]) => {
         const ids = speakerIds || []
-        ids.includes(speaker.id)
-    }).map((speaker: any) => speaker.docRef)
+        return speakers
+            .filter((speaker: any): boolean => ids.indexOf(speaker.id) !== -1)
+            .map((speaker: any) => speaker.docRef)
+    }
 
     const dayRefFor = (days: any, dayId: any) => days.find((day: any) => day.id == dayId).docRef
     const placeRefFor = (places: any, placeId: any) => places.find((place: any) => place.id == placeId).docRef
