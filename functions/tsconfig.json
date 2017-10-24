@@ -2,7 +2,8 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es6",
-        "strict": true
+        "strict": true,
+        "noImplicitReturns": true
     },
     "include": [
         "src/**/*"
