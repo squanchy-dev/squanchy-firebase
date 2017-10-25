@@ -109,9 +109,9 @@ export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Reques
             .map((speaker: any) => speaker.docRef)
     }
 
-    const dayRefFor = (days: any, dayId: any) => days.find((day: any) => day.id == dayId).docRef
-    const placeRefFor = (places: any, placeId: any) => places.find((place: any) => place.id == placeId).docRef
-    const trackRefFor = (tracks: any, trackId: any) => tracks.find((track: any) => track.id == trackId).docRef
+    const dayRefFor = (days: any, dayId: any) => days.find((day: any) => day.id === dayId).docRef
+    const placeRefFor = (places: any, placeId: any) => places.find((place: any) => place.id === placeId).docRef
+    const trackRefFor = (tracks: any, trackId: any) => tracks.find((track: any) => track.id === trackId).docRef
 
     return firebaseApp.database().ref('data').once('value').then(snapshot => {
         return Promise.resolve(snapshot.val())

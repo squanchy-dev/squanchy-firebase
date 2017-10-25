@@ -8,7 +8,7 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
         .then(eventsData => {
 
             const extractLevel = (submission: SubmissionData): Promise<FlattenedSubmission> => {
-                if (submission.level == undefined) return Promise.resolve({...submission, level: undefined})
+                if (submission.level === undefined) return Promise.resolve({...submission, level: undefined})
 
                 return extract(submission.level).then(level => ({...submission, level}))
             }
