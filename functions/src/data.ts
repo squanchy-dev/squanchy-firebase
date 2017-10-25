@@ -19,7 +19,7 @@ export interface UserData {
     readonly profile_pic: string
 }
 
-export interface SessionData {
+export interface EventData {
     readonly day: Reference<DayData>
     readonly end_time: Date
     readonly place: Reference<PlaceData>

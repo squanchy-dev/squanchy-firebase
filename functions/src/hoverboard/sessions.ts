@@ -1,11 +1,11 @@
 import { Firestore } from '../firebase'
 import { HoverboardSpeaker } from './speakers'
-import { SessionData, PlaceData, DayData, SubmissionData, TrackData, extract, LevelData, Reference, SpeakerData } from '../data'
+import { EventData, PlaceData, DayData, SubmissionData, TrackData, extract, LevelData, Reference, SpeakerData } from '../data'
 
 export const extractSessions = (firestore: Firestore): Promise<HoverboardSession[]> => {
     return firestore.collection('events').get()
-        .then(snapshot => snapshot.docs.map(doc => ({ ...doc.data() as SessionData, id: doc.id })))
-        .then(sessionsData => {
+        .then(snapshot => snapshot.docs.map(doc => ({ ...doc.data() as EventData, id: doc.id })))
+        .then(eventsData => {
 
             const extractLevel = (submission: SubmissionData): Promise<FlattenedSubmission> => {
                 if (submission.level == undefined) return Promise.resolve({...submission, level: undefined})
@@ -13,14 +13,14 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
                 return extract(submission.level).then(level => ({...submission, level}))
             }
 
-            return Promise.all(sessionsData.map(sessionData => {
+            return Promise.all(eventsData.map(eventData => {
                 return Promise.all([
-                    extract(sessionData.place),
-                    extract(sessionData.day),
-                    extract(sessionData.submission).then(it => extractLevel(it)),
-                    extract(sessionData.track)
+                    extract(eventData.place),
+                    extract(eventData.day),
+                    extract(eventData.submission).then(it => extractLevel(it)),
+                    extract(eventData.track)
                 ]).then(([place, day, submission, track]: [PlaceData, DayData, FlattenedSubmission, TrackData]) => ({
-                    ...sessionData,
+                    ...eventData,
                     place,
                     day,
                     track,
