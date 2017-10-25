@@ -66,7 +66,7 @@ export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Reques
         return Promise.all(Object.keys(_events).map(eventKey => _events[eventKey]).map(_event => {
             return submissions.add(submission(
                 _event.description,
-                designCategory.path,
+                designCategory,
                 levelFor(_event.experience_level),
                 null,
                 false,
