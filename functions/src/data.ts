@@ -11,6 +11,8 @@ export interface SpeakerData {
     readonly job_description: string | null,
     readonly bio: string,
     readonly company_name: string | null,
+    readonly company_url: string | null,
+    readonly personal_url: string | null,
     readonly user_profile: Reference<UserData>
 }
 
@@ -27,6 +29,7 @@ export interface EventData {
     readonly submission: Reference<SubmissionData>
     readonly track: Reference<TrackData>
     readonly type: string
+    readonly speakers?: Reference<SpeakerData>[]
 }
 
 export interface DayData {
@@ -42,7 +45,7 @@ export interface PlaceData {
 export interface SubmissionData {
     readonly abstract: string
     readonly category: Reference<CategoryData>
-    readonly level?: Reference<LevelData>
+    readonly level: Reference<LevelData> | null
     readonly notes: string
     readonly private: boolean
     readonly speakers: Reference<SpeakerData>[]
