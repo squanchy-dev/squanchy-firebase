@@ -8,7 +8,7 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
         .then(eventsData => {
 
             const extractLevel = (submission: SubmissionData): Promise<FlattenedSubmission> => {
-                if (submission.level === undefined) return Promise.resolve({...submission, level: undefined})
+                if (submission.level === undefined || submission.level === null) return Promise.resolve({...submission, level: null})
 
                 return extract(submission.level).then(level => ({...submission, level}))
             }
@@ -30,7 +30,7 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
             }))
         })
         .then(sessions => sessions.map(session => ({
-            complexity: (session.submission.level) ? session.submission.level.name : undefined,
+            complexity: (session.submission.level) ? session.submission.level.name : null,
             description: session.submission.abstract,
             id: session.id,
             language: 'English',
@@ -42,7 +42,7 @@ export const extractSessions = (firestore: Firestore): Promise<HoverboardSession
 }
 
 export interface HoverboardSession {
-    complexity: string|undefined
+    complexity: string|null
     description: string
     id: string
     language: string
@@ -54,7 +54,7 @@ export interface HoverboardSession {
 
 interface FlattenedSubmission {
     readonly abstract: string
-    readonly level: LevelData|undefined
+    readonly level: LevelData|null
     readonly notes: string
     readonly private: boolean
     readonly tags: string[]

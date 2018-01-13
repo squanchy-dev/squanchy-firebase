@@ -31,7 +31,7 @@ export const extractSchedule = (firestore: Firestore): Promise<HoverboardSchedul
                                         const startAndEnd = _startAndEnd(eventAndCategory.event.start_time, eventAndCategory.event.end_time)
                                         const sessions = timeslotsMap.get(startAndEnd)
 
-                                        if (sessions === undefined) {
+                                        if (sessions === undefined || sessions === null) {
                                             timeslotsMap.set(startAndEnd, [eventAndCategory])
                                             return
                                         }
