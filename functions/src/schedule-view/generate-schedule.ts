@@ -1,11 +1,11 @@
-import { FirebaseApp } from "../firebase";
+import { FirebaseApp } from "../firebase"
 import { Request, Response } from 'express'
-import { Speaker, SchedulePage } from "./schedule-view-data";
-import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data";
+import { Speaker, SchedulePage } from "./schedule-view-data"
+import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data"
 import { collection as firestoreCollection } from '../firestore/collection'
 
 export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request, response: Response) => {
-    const firestore = firebaseApp.firestore();
+    const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
     const days = collection<DayData>('days')
@@ -59,7 +59,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
                     const submission = submissions.find(({ id }) => event.submission.id === id)!
                     const place = places.find(({ id }) => event.place.id === id) || null
                     const track = tracks.find(({ id }) => event.track.id === id) || null
-                    const submissionLevel = submission.level;
+                    const submissionLevel = submission.level
 
                     const level = submissionLevel
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name

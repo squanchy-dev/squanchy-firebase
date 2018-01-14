@@ -1,4 +1,4 @@
-import { FirebaseApp } from "../firebase";
+import { FirebaseApp } from "../firebase"
 
 export const collection = (firebaseApp: FirebaseApp) => <T>(collection: string): Promise<WithId<T>[]> => {
     return firebaseApp.firestore().collection(collection)

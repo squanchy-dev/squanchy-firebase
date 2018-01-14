@@ -6,18 +6,18 @@ export interface Reference<T> {
 export const extract = <T> (ref: Reference<T>): Promise<T> => ref.get().then(it => it.data())
 
 export interface SpeakerData {
-    readonly twitter_handle: string,
-    readonly address: string | null,
-    readonly job_description: string | null,
-    readonly bio: string,
-    readonly company_name: string | null,
-    readonly company_url: string | null,
-    readonly personal_url: string | null,
+    readonly twitter_handle: string
+    readonly address: string | null
+    readonly job_description: string | null
+    readonly bio: string
+    readonly company_name: string | null
+    readonly company_url: string | null
+    readonly personal_url: string | null
     readonly user_profile: Reference<UserData>
 }
 
 export interface UserData {
-    readonly full_name: string,
+    readonly full_name: string
     readonly profile_pic: string
 }
 
