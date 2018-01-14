@@ -1,8 +1,8 @@
-import { FirebaseApp } from "./firebase";
+import { FirebaseApp } from "../firebase";
 import { Request, Response } from 'express'
-import {Speaker, SchedulePage } from "./scheduleData";
-import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "./data";
-import { collection as firestoreCollection} from './firestore/collection'
+import { Speaker, SchedulePage } from "./schedule-view-data";
+import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../data";
+import { collection as firestoreCollection } from '../firestore/collection'
 
 export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request, response: Response) => {
     const firestore = firebaseApp.firestore();
@@ -38,8 +38,8 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
     ]) => {
         const flattenedSpeakers = speakers.map(speaker => ({
             speaker,
-            user: users.find(({id}) => speaker.user_profile.id === id)!
-        })).map(({speaker, user}): Speaker => ({
+            user: users.find(({ id }) => speaker.user_profile.id === id)!
+        })).map(({ speaker, user }): Speaker => ({
             id: speaker.id,
             name: user.full_name,
             bio: speaker.bio,
@@ -65,7 +65,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name
                         : null
 
-                    const eventSpeakers = flattenedSpeakers.filter(({id}) => (event.speakers || []).findIndex(({id: speakerId}) => speakerId === id) !== -1)
+                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (event.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
 
                     return {
                         id: event.id,

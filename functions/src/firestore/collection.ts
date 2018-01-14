@@ -9,4 +9,4 @@ export const collection = (firebaseApp: FirebaseApp) => <T>(collection: string):
 }
 
 export type WithId<T> = T & { id: string }
-const withId = <T> (data: T, id: string): WithId<T> => ({...data as any, id})
+const withId = <T>(data: T, id: string): WithId<T> => ({ ...data as any, id })
