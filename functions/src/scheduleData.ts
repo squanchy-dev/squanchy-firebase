@@ -51,6 +51,3 @@ export interface Speaker {
     photoUrl: Optional<string>
     twitterUsername: Optional<string>
 }
-
-export type WithId<T> = T & { id: string }
-export const withId = <T> (data: T, id: string): WithId<T> => ({...data as any, id})
