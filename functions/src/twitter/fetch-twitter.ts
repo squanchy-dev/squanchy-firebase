@@ -6,6 +6,7 @@ import { base64_encode } from '../base64';
 import { Tweet, User, HashtagsEntity, MediaEntity, UrlsEntity, UserMention } from './twitter-data';
 import { collection as firestoreCollection } from '../firestore/collection'
 import { FirestoreTweet, FirestoreUser, FirestoreHashtag, FirestoreMedia, FirestoreUrl, FirestoreUserMention } from './firestore-data';
+import { present, Optional } from '../optional';
 
 interface TwitterConfig { consumer_key: string, consumer_secret: string, search_query: string }
 
@@ -51,6 +52,7 @@ export const fetchTwitter = (
             response.status(200).send(`<h2>Imported successfully all those tweets</h2>`)
         })
         .catch(error => {
+            console.error(error)
             response.status(500).send(`Ruh roh... 🐛 => "${JSON.stringify(error)}"`)
         })
 }
@@ -84,59 +86,55 @@ const firestoreUserFrom = (user: User): FirestoreUser => ({
     profileImageUrl: user.profile_image_url_https.replace('_normal.', '_bigger.')
 })
 
-const firestoreHashtagsFrom = (hashtags: HashtagsEntity[] | null): FirestoreHashtag[] => {
-    if (hashtags === null) {
+const firestoreHashtagsFrom = (hashtags: Optional<HashtagsEntity[]>): FirestoreHashtag[] => {
+    if (!present(hashtags)) {
         return []
-    } else {
-        return hashtags.map((hashtag) => ({
-            start: hashtag.indices[0],
-            end: hashtag.indices[1],
-            text: hashtag.text
-        }))
     }
+    return hashtags.map((hashtag) => ({
+        start: hashtag.indices[0],
+        end: hashtag.indices[1],
+        text: hashtag.text
+    }))
 }
 
-const firestoreMediaFrom = (media: MediaEntity[] | null): FirestoreMedia[] => {
-    if (media === null) {
+const firestoreMediaFrom = (media: Optional<MediaEntity[]>): FirestoreMedia[] => {
+    if (!present(media)) {
         return []
-    } else {
-        return media.map((mediaItem) => ({
-            displayUrl: mediaItem.display_url,
-            start: mediaItem.indices[0],
-            end: mediaItem.indices[1],
-            id: mediaItem.id_str,
-            mediaUrl: mediaItem.media_url_https,
-            expandedUrl: mediaItem.expanded_url,
-            type: mediaItem.type,
-            url: mediaItem.url
-        }))
     }
+    return media.map((mediaItem) => ({
+        displayUrl: mediaItem.display_url,
+        start: mediaItem.indices[0],
+        end: mediaItem.indices[1],
+        id: mediaItem.id_str,
+        mediaUrl: mediaItem.media_url_https,
+        expandedUrl: mediaItem.expanded_url,
+        type: mediaItem.type,
+        url: mediaItem.url
+    }))
 }
 
-const firestoreUrlsFrom = (urls: UrlsEntity[] | null): FirestoreUrl[] => {
-    if (urls === null) {
+const firestoreUrlsFrom = (urls: Optional<UrlsEntity[]>): FirestoreUrl[] => {
+    if (!present(urls)) {
         return []
-    } else {
-        return urls.map((url) => ({
-            displayUrl: url.display_url,
-            url: url.url,
-            expandedUrl: url.expanded_url,
-            start: url.indices[0],
-            end: url.indices[1]
-        }))
     }
+    return urls.map((url) => ({
+        displayUrl: url.display_url,
+        url: url.url,
+        expandedUrl: url.expanded_url,
+        start: url.indices[0],
+        end: url.indices[1]
+    }))
 }
 
-const firestoreUserMentionsFrom = (mentions: UserMention[] | null): FirestoreUserMention[] => {
-    if (mentions === null) {
+const firestoreUserMentionsFrom = (mentions: Optional<UserMention[]>): FirestoreUserMention[] => {
+    if (!present(mentions)) {
         return []
-    } else {
-        return mentions.map((mention) => ({
-            start: mention.indices[0],
-            end: mention.indices[1],
-            id: mention.id_str,
-            name: mention.name,
-            screenName: mention.screen_name
-        }))
     }
+    return mentions.map((mention) => ({
+        start: mention.indices[0],
+        end: mention.indices[1],
+        id: mention.id_str,
+        name: mention.name,
+        screenName: mention.screen_name
+    }))
 }
