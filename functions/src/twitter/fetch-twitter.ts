@@ -1,8 +1,11 @@
-import { Request, Response } from 'express'
+import { Request, Response, json } from 'express'
 import { Buffer } from "buffer";
-import { FirebaseApp } from "../firebase";
+import { FirebaseApp, Firestore } from "../firebase";
 import { Fetch } from "../fetch";
 import { base64_encode } from '../base64';
+import { Tweet, User, HashtagsEntity, MediaEntity, UrlsEntity, UserMention } from './twitter-data';
+import { collection as firestoreCollection } from '../firestore/collection'
+import { FirestoreTweet, FirestoreUser, FirestoreHashtag, FirestoreMedia, FirestoreUrl, FirestoreUserMention } from './firestore-data';
 
 interface TwitterConfig { consumer_key: string, consumer_secret: string, search_query: string }
 
@@ -41,10 +44,99 @@ export const fetchTwitter = (
             return searchOnTwitter(accessToken, searchParameter)
         })
         .then(json => {
-            response.status(200)
-                .json(json)
+            const statuses: Tweet[] = json.statuses
+            return Promise.all(uploadToFirestore(firebaseApp.firestore(), statuses))
+        })
+        .then(() => {
+            response.status(200).send(`<h2>Imported successfully all those tweets</h2>`)
         })
         .catch(error => {
-            response.status(500).send(error)
+            response.status(500).send(`Ruh roh... 🐛 => "${JSON.stringify(error)}"`)
         })
+}
+
+const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]) => {
+    const tweetsCollection = firestore.collection('social_stream')
+        .doc('twitter')
+        .collection('tweets2')
+
+    return tweets.map((rawTweet): FirestoreTweet => ({
+        id: rawTweet.id_str,
+        text: rawTweet.full_text,
+        createdAt: new Date(rawTweet.created_at),
+        displayTextRange: rawTweet.display_text_range,
+        user: firestoreUserFrom(rawTweet.user),
+        entities: {
+            hashtags: firestoreHashtagsFrom(rawTweet.entities.hashtags),
+            media: firestoreMediaFrom(rawTweet.entities.media),
+            urls: firestoreUrlsFrom(rawTweet.entities.urls),
+            userMentions: firestoreUserMentionsFrom(rawTweet.entities.user_mentions)
+        }
+    })).map((firestoreTweet) => {
+        tweetsCollection.add(firestoreTweet)
+    })
+}
+
+const firestoreUserFrom = (user: User): FirestoreUser => ({
+    id: user.id_str,
+    name: user.name,
+    screenName: user.screen_name,
+    profileImageUrl: user.profile_image_url_https.replace('_normal.', '_bigger.')
+})
+
+const firestoreHashtagsFrom = (hashtags: HashtagsEntity[] | null): FirestoreHashtag[] => {
+    if (hashtags === null) {
+        return []
+    } else {
+        return hashtags.map((hashtag) => ({
+            start: hashtag.indices[0],
+            end: hashtag.indices[1],
+            text: hashtag.text
+        }))
+    }
+}
+
+const firestoreMediaFrom = (media: MediaEntity[] | null): FirestoreMedia[] => {
+    if (media === null) {
+        return []
+    } else {
+        return media.map((mediaItem) => ({
+            displayUrl: mediaItem.display_url,
+            start: mediaItem.indices[0],
+            end: mediaItem.indices[1],
+            id: mediaItem.id_str,
+            mediaUrl: mediaItem.media_url_https,
+            expandedUrl: mediaItem.expanded_url,
+            type: mediaItem.type,
+            url: mediaItem.url
+        }))
+    }
+}
+
+const firestoreUrlsFrom = (urls: UrlsEntity[] | null): FirestoreUrl[] => {
+    if (urls === null) {
+        return []
+    } else {
+        return urls.map((url) => ({
+            displayUrl: url.display_url,
+            url: url.url,
+            expandedUrl: url.expanded_url,
+            start: url.indices[0],
+            end: url.indices[1]
+        }))
+    }
+}
+
+const firestoreUserMentionsFrom = (mentions: UserMention[] | null): FirestoreUserMention[] => {
+    if (mentions === null) {
+        return []
+    } else {
+        return mentions.map((mention) => ({
+            start: mention.indices[0],
+            end: mention.indices[1],
+            id: mention.id_str,
+            name: mention.name,
+            screenName: mention.screen_name
+        }))
+    }
 }
