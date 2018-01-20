@@ -1,42 +1,42 @@
-export interface Tweet {
+export interface FirestoreTweet {
     id: string
     text: string
     createdAt: Date
     displayTextRange: [number, number]
-    user: User
+    user: FirestoreUser
     entities: {
-        hashtags: Hashtag[]
-        media: Media[]
-        urls: Url[]
-        userMentions: UserMention[]
+        hashtags: FirestoreHashtag[]
+        media: FirestoreMedia[]
+        urls: FirestoreUrl[]
+        userMentions: FirestoreUserMention[]
     }
 }
 
-export interface User {
+export interface FirestoreUser {
     id: string
     name: string
     screenName: string
     profileImageUrl: string
 }
 
-export interface Hashtag {
+export interface FirestoreHashtag {
     start: number
     end: number
     text: string
 }
 
-export interface Media {
+export interface FirestoreMedia {
     displayUrl: string
     start: number
     end: number
     id: string
     mediaUrl: string
     expandedUrl: string
-    type: "photo"
+    type: string
     url: string
 }
 
-export interface Url {
+export interface FirestoreUrl {
     displayUrl: string
     url: string
     expandedUrl: string
@@ -44,7 +44,7 @@ export interface Url {
     end: number
 }
 
-export interface UserMention {
+export interface FirestoreUserMention {
     start: number
     end: number
     id: string
