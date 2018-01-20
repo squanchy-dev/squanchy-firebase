@@ -2,7 +2,6 @@ export interface SearchResult {
     statuses: Tweet[]
 }
 
-
 export interface Tweet {
     id_str: string
     text: string
@@ -17,17 +16,15 @@ export interface Tweet {
     }
 }
 
-
 export interface Hashtag {
     start: number
     end: number
     text: string
 }
 
-
 export interface HashtagsEntity {
     text: string
-    [start, end]: [number, number]
+    indices: [number, number]
 }
 
 export interface User {
@@ -44,7 +41,7 @@ export interface User {
     follow_request_sent?: null
     profile_link_color: string
     is_translator: boolean
-    entities: Entities1
+    entities: UserEntities
     default_profile: boolean
     contributors_enabled: boolean
     favourites_count: number
@@ -78,22 +75,58 @@ export interface Entities {
     hashtags?: (HashtagsEntity)[] | null
     user_mentions?: (null)[] | null
 }
+
 export interface Metadata {
     iso_language_code: string
     result_type: string
 }
-export interface Entities1 {
+
+export interface UserEntities {
     url: Url
     description: Description
 }
+
 export interface Url {
     urls?: (UrlsEntity)[] | null
 }
+
 export interface UrlsEntity {
     expanded_url?: null
     url: string
     indices?: (number)[] | null
 }
+
 export interface Description {
     urls?: (null)[] | null
+}
+
+export interface Media {
+    id: number
+    id_str: string
+    indices: number[]
+    media_url_https: string
+    url: string
+    display_url: string
+    expanded_url: string
+    type: string
+    sizes: {
+        medium: MediaSize
+        thumb: MediaSize
+        large: MediaSize
+        small: MediaSize
+    }
+}
+
+export interface MediaSize {
+    w: number
+    h: number
+    resize: string
+}
+
+export interface UserMention {
+    screen_name: string
+    name: string
+    id: number
+    id_str: string
+    indices: [number, number]
 }
