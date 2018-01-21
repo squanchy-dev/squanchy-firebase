@@ -1,6 +1,6 @@
 import { Request, Response, json } from 'express'
 import { Buffer } from "buffer";
-import { FirebaseApp, Firestore } from "../firebase";
+import { FirebaseApp, Firestore, DocumentReference } from "../firebase";
 import { Fetch } from "../fetch";
 import { base64_encode } from '../base64';
 import { Tweet, User, HashtagsEntity, MediaEntity, UrlsEntity, UserMention } from './twitter-data';
@@ -57,7 +57,7 @@ export const fetchTwitter = (
         })
 }
 
-const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]) => {
+const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<DocumentReference>[] => {
     const tweetsCollection = firestore.collection('social_stream')
         .doc('twitter')
         .collection('tweets2')
@@ -74,9 +74,7 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]) => {
             urls: firestoreUrlsFrom(rawTweet.entities.urls),
             userMentions: firestoreUserMentionsFrom(rawTweet.entities.user_mentions)
         }
-    })).map((firestoreTweet) => {
-        tweetsCollection.add(firestoreTweet)
-    })
+    })).map((firestoreTweet) => tweetsCollection.add(firestoreTweet))
 }
 
 const firestoreUserFrom = (user: User): FirestoreUser => ({
