@@ -60,7 +60,7 @@ export const fetchTwitter = (
 const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<DocumentReference>[] => {
     const tweetsCollection = firestore.collection('social_stream')
         .doc('twitter')
-        .collection('tweets2')
+        .collection('tweets')
 
     return tweets.map((rawTweet): FirestoreTweet => ({
         id: rawTweet.id_str,
