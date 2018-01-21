@@ -49,13 +49,16 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
             photoUrl: user.profile_pic,
             personalUrl: speaker.personal_url
         }))
+
         const schedulePages = firestore.collection('views')
             .doc('schedule')
             .collection('schedule_pages')
+
         return Promise.all(days.map(day => {
+            const eventsOfTheDay = events.filter(event => event.day.id === day.id)
             const schedulePage: SchedulePage = {
                 day,
-                events: events.map(event => {
+                events: eventsOfTheDay.map(event => {
                     const submission = submissions.find(({ id }) => event.submission.id === id)!
                     const place = places.find(({ id }) => event.place.id === id) || null
                     const track = tracks.find(({ id }) => event.track.id === id) || null
@@ -82,7 +85,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
                 })
             }
 
-            return schedulePages.add(schedulePage)
+            return schedulePages.doc(day.id).set(schedulePage)
         }))
     }).then(() => {
         response.status(200).send('Yay!')
