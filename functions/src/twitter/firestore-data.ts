@@ -4,6 +4,7 @@ export interface FirestoreTweet {
     createdAt: Date
     displayTextRange: [number, number]
     user: FirestoreUser
+    inReplyToScreenName: string | null
     entities: {
         hashtags: FirestoreHashtag[]
         media: FirestoreMedia[]

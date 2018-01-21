@@ -12,6 +12,7 @@ export interface Tweet {
     user: User
     entities: Entities
     retweeted_status: any
+    in_reply_to_screen_name: string | null
 }
 
 export interface User {

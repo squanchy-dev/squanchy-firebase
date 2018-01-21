@@ -7,6 +7,7 @@ import { Tweet, User, HashtagsEntity, MediaEntity, UrlsEntity, UserMention } fro
 import { collection as firestoreCollection } from '../firestore/collection'
 import { FirestoreTweet, FirestoreUser, FirestoreHashtag, FirestoreMedia, FirestoreUrl, FirestoreUserMention } from './firestore-data';
 import { present, Optional } from '../optional';
+import { WriteResult } from '@google-cloud/firestore';
 
 interface TwitterConfig { consumer_key: string, consumer_secret: string, search_query: string }
 
@@ -57,7 +58,7 @@ export const fetchTwitter = (
         })
 }
 
-const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<DocumentReference>[] => {
+const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<WriteResult>[] => {
     const tweetsCollection = firestore.collection('social_stream')
         .doc('twitter')
         .collection('tweets')
@@ -72,13 +73,14 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Docum
             createdAt: new Date(rawTweet.created_at),
             displayTextRange: rawTweet.display_text_range,
             user: firestoreUserFrom(rawTweet.user),
+            inReplyToScreenName: rawTweet.in_reply_to_screen_name,
             entities: {
                 hashtags: firestoreHashtagsFrom(rawTweet.entities.hashtags),
                 media: firestoreMediaFrom(rawTweet.entities.media),
                 urls: firestoreUrlsFrom(rawTweet.entities.urls),
                 userMentions: firestoreUserMentionsFrom(rawTweet.entities.user_mentions)
             }
-        })).map((firestoreTweet) => tweetsCollection.add(firestoreTweet))
+        })).map((firestoreTweet) => tweetsCollection.doc(firestoreTweet.id).set(firestoreTweet))
 }
 
 const firestoreUserFrom = (user: User): FirestoreUser => ({
