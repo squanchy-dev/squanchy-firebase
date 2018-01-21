@@ -62,19 +62,23 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Docum
         .doc('twitter')
         .collection('tweets')
 
-    return tweets.map((rawTweet): FirestoreTweet => ({
-        id: rawTweet.id_str,
-        text: rawTweet.full_text,
-        createdAt: new Date(rawTweet.created_at),
-        displayTextRange: rawTweet.display_text_range,
-        user: firestoreUserFrom(rawTweet.user),
-        entities: {
-            hashtags: firestoreHashtagsFrom(rawTweet.entities.hashtags),
-            media: firestoreMediaFrom(rawTweet.entities.media),
-            urls: firestoreUrlsFrom(rawTweet.entities.urls),
-            userMentions: firestoreUserMentionsFrom(rawTweet.entities.user_mentions)
-        }
-    })).map((firestoreTweet) => tweetsCollection.add(firestoreTweet))
+    return tweets.filter((rawTweet) => {
+        // Exclude retweets
+        return rawTweet.retweeted_status === undefined || rawTweet.retweeted_status === null
+    })
+        .map((rawTweet): FirestoreTweet => ({
+            id: rawTweet.id_str,
+            text: rawTweet.full_text,
+            createdAt: new Date(rawTweet.created_at),
+            displayTextRange: rawTweet.display_text_range,
+            user: firestoreUserFrom(rawTweet.user),
+            entities: {
+                hashtags: firestoreHashtagsFrom(rawTweet.entities.hashtags),
+                media: firestoreMediaFrom(rawTweet.entities.media),
+                urls: firestoreUrlsFrom(rawTweet.entities.urls),
+                userMentions: firestoreUserMentionsFrom(rawTweet.entities.user_mentions)
+            }
+        })).map((firestoreTweet) => tweetsCollection.add(firestoreTweet))
 }
 
 const firestoreUserFrom = (user: User): FirestoreUser => ({
