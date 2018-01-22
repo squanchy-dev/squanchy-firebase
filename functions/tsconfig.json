@@ -6,6 +6,8 @@
             "es6"
         ],
         "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
         "noImplicitReturns": true
     },
     "include": [
