@@ -68,7 +68,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name
                         : null
 
-                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (event.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
+                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (submission.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
 
                     return {
                         id: event.id,
