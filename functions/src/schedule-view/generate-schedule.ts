@@ -4,7 +4,7 @@ import { Speaker, SchedulePage } from "./schedule-view-data"
 import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data"
 import { collection as firestoreCollection } from '../firestore/collection'
 
-export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request, response: Response) => {
+export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
