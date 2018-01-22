@@ -2,7 +2,7 @@ import firebaseAdmin = require('firebase-admin')
 import { Request, Response } from 'express'
 import firebaseApp = firebaseAdmin.app.App
 
-export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Request, response: Response) => {
+export const migrateToFirestore = (firebaseApp: firebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const designCategory = firestore.collection('categories').doc('xA41e90i2yqopYycx1fm')
     const days = firestore.collection('days')
@@ -130,9 +130,6 @@ export const migrateToFirestore = (firebaseApp: firebaseApp) => (request: Reques
 
 const orNull = (val: any) => val || null
 
-const category = (name: any) => ({
-    name: orNull(name)
-})
 const day = (date: any, position: any) => ({
     date: orNull(date),
     position: orNull(position)
@@ -149,9 +146,7 @@ const event = (
         track: orNull(track),
         type: orNull(type)
     })
-const level = (name: any) => ({
-    name: orNull(name)
-})
+
 const place = (name: any, floor: any) => ({
     name: orNull(name),
     floor: orNull(floor)
