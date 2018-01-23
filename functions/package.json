@@ -7,8 +7,10 @@
     "deploy": "firebase deploy --only functions"
   },
   "dependencies": {
-    "firebase-admin": "~5.4.0",
-    "firebase-functions": "^0.7.0"
+    "@types/node-fetch": "^1.6.7",
+    "firebase-admin": "^5.8.1",
+    "firebase-functions": "^0.8.1",
+    "node-fetch": "^1.7.3"
   },
   "private": true,
   "devDependencies": {
