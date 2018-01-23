@@ -63,10 +63,7 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Write
         .doc('twitter')
         .collection('tweets')
 
-    return tweets.filter((rawTweet) => {
-        // Exclude retweets
-        return rawTweet.retweeted_status === undefined || rawTweet.retweeted_status === null
-    })
+    return tweets.filter(excludeRetweets)
         .map((rawTweet): FirestoreTweet => ({
             id: rawTweet.id_str,
             text: rawTweet.full_text,
@@ -82,6 +79,8 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Write
             }
         })).map((firestoreTweet) => tweetsCollection.doc(firestoreTweet.id).set(firestoreTweet))
 }
+
+const excludeRetweets = (rawTweet: Tweet) => rawTweet.retweeted_status === undefined || rawTweet.retweeted_status === null
 
 const firestoreUserFrom = (user: User): FirestoreUser => ({
     id: user.id_str,
