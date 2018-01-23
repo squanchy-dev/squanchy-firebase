@@ -36,9 +36,9 @@ export interface Place {
 export interface Track {
     id: string
     name: string
-    accent_color: Optional<string>
-    text_color: Optional<string>
-    icon_url: Optional<string>
+    accentColor: Optional<string>
+    textColor: Optional<string>
+    iconUrl: Optional<string>
 }
 
 export interface Speaker {

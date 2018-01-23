@@ -1,6 +1,6 @@
 import { FirebaseApp } from "../firebase"
 import { Request, Response } from 'express'
-import { Speaker, SchedulePage } from "./schedule-view-data"
+import { Speaker, SchedulePage, Track } from "./schedule-view-data"
 import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data"
 import { collection as firestoreCollection } from '../firestore/collection'
 
@@ -76,7 +76,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
                         startTime: event.start_time,
                         endTime: event.end_time,
                         place: place,
-                        track: track,
+                        track: trackFrom(track),
                         speakers: eventSpeakers,
                         experienceLevel: level,
                         type: event.type,
@@ -90,4 +90,17 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
     }).then(() => {
         response.status(200).send('Yay!')
     })
+}
+
+const trackFrom = (rawTrack: TrackData & { id: string } | null): Track | null => {
+    if (rawTrack === null) {
+        return null
+    }
+    return {
+        id: rawTrack.id,
+        name: rawTrack.name,
+        accentColor: rawTrack.accent_color,
+        textColor: rawTrack.text_color,
+        iconUrl: rawTrack.icon_url
+    }
 }
