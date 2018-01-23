@@ -70,7 +70,7 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Write
             createdAt: new Date(rawTweet.created_at),
             displayTextRange: rawTweet.display_text_range,
             user: firestoreUserFrom(rawTweet.user),
-            inReplyToScreenName: rawTweet.in_reply_to_screen_name,
+            inReplyToScreenName: rawTweet.in_reply_to_screen_name || null,
             entities: {
                 hashtags: firestoreHashtagsFrom(rawTweet.entities.hashtags),
                 media: firestoreMediaFrom(rawTweet.entities.media),
