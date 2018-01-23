@@ -4,7 +4,7 @@ import { Speaker, SchedulePage } from "./schedule-view-data"
 import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data"
 import { collection as firestoreCollection } from '../firestore/collection'
 
-export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request, response: Response) => {
+export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
@@ -68,7 +68,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (request: Request,
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name
                         : null
 
-                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (event.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
+                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (submission.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
 
                     return {
                         id: event.id,

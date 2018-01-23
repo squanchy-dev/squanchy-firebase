@@ -29,7 +29,6 @@ export interface EventData {
     readonly submission: Reference<SubmissionData>
     readonly track: Reference<TrackData>
     readonly type: string
-    readonly speakers?: Reference<SpeakerData>[]
 }
 
 export interface DayData {
