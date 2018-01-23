@@ -1,10 +1,8 @@
-import { Request, Response, json } from 'express'
-import { Buffer } from "buffer";
-import { FirebaseApp, Firestore, DocumentReference } from "../firebase";
+import { Request, Response } from 'express'
+import { FirebaseApp, Firestore } from "../firebase";
 import { Fetch } from "../fetch";
 import { base64_encode } from '../base64';
 import { Tweet, User, HashtagsEntity, MediaEntity, UrlsEntity, UserMention } from './twitter-data';
-import { collection as firestoreCollection } from '../firestore/collection'
 import { FirestoreTweet, FirestoreUser, FirestoreHashtag, FirestoreMedia, FirestoreUrl, FirestoreUserMention } from './firestore-data';
 import { present, Optional } from '../optional';
 import { WriteResult } from '@google-cloud/firestore';
@@ -15,7 +13,7 @@ export const fetchTwitter = (
     firebaseApp: FirebaseApp,
     fetch: Fetch,
     { consumer_key, consumer_secret, search_query }: TwitterConfig
-) => (request: Request, response: Response) => {
+) => (_: Request, response: Response) => {
     const authenticateTwitter = (consumerKey: string, consumerSecret: string): Promise<string> => {
         const auth = base64_encode(`${encodeURIComponent(consumerKey)}:${encodeURIComponent(consumerSecret)}`)
         return fetch('https://api.twitter.com/oauth2/token', {
