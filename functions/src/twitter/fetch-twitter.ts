@@ -78,7 +78,7 @@ const uploadToFirestore = (firestore: Firestore, tweets: Tweet[]): Promise<Write
         })).map((firestoreTweet) => tweetsCollection.doc(firestoreTweet.id).set(firestoreTweet))
 }
 
-const excludeRetweets = (rawTweet: Tweet) => rawTweet.retweeted_status === undefined || rawTweet.retweeted_status === null
+export const excludeRetweets = (rawTweet: Tweet) => !present(rawTweet.retweeted_status)
 
 const firestoreUserFrom = (user: User): FirestoreUser => ({
     id: user.id_str,
