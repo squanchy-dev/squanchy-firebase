@@ -11,7 +11,7 @@ export interface Tweet {
     display_text_range: [number, number]
     user: User
     entities: Entities
-    retweeted_status: any
+    retweeted_status: Optional<string>
     in_reply_to_screen_name: Optional<string>
 }
 
