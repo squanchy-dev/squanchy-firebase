@@ -1,6 +1,6 @@
 import { FirebaseApp } from "../firebase"
 
-export const collection = (firebaseApp: FirebaseApp) => <T>(collection: string): Promise<WithId<T>[]> => {
+export const firestoreCollection = (firebaseApp: FirebaseApp) => <T>(collection: string): Promise<WithId<T>[]> => {
     return firebaseApp.firestore().collection(collection)
         .get()
         .then(value => {
