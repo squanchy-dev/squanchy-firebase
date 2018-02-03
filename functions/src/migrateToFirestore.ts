@@ -1,3 +1,4 @@
+/* tslint:disable */
 import firebaseAdmin = require('firebase-admin')
 import { Request, Response } from 'express'
 import firebaseApp = firebaseAdmin.app.App
