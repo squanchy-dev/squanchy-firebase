@@ -3,6 +3,7 @@
     "rules": {
         "semicolon": [true, "never"],
         "quotemark": [true, "single"],
-        "interface-name": [true, "never-prefix"]
+        "interface-name": [true, "never-prefix"],
+        "trailing-comma": [true, "ignore-interfaces"]
     }
 }
