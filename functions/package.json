@@ -5,7 +5,8 @@
     "build": "gulp build",
     "predeploy": "npm run-script build",
     "deploy": "firebase deploy --only functions",
-    "test": "jest"
+    "test": "jest",
+    "lint": "tslint"
   },
   "dependencies": {
     "@types/node-fetch": "^1.6.7",
@@ -20,6 +21,7 @@
     "gulp-typescript": "^3.2.2",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.1",
+    "tslint": "^5.9.1",
     "typescript": "2.7"
   },
   "jest": {
