@@ -6,7 +6,7 @@
     "predeploy": "npm run-script build",
     "deploy": "firebase deploy --only functions",
     "test": "jest",
-    "lint": "tslint"
+    "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
     "@types/node-fetch": "^1.6.7",
