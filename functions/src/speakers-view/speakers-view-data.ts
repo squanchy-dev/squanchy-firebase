@@ -1,4 +1,4 @@
-import { Optional } from "../optional";
+import { Optional } from '../optional'
 
 export interface SpeakerPage {
     readonly id: string
