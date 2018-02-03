@@ -1,7 +1,7 @@
 import { WriteResult } from '@google-cloud/firestore'
 import { Request, Response } from 'express'
 
-import { base64_encode } from '../base64'
+import { base64Encode } from '../base64'
 import { Fetch } from '../fetch'
 import { FirebaseApp, Firestore } from '../firebase'
 import { Optional, present } from '../optional'
@@ -23,7 +23,7 @@ export const fetchTwitter = (
     { consumer_key, consumer_secret, search_query }: TwitterConfig
 ) => (_: Request, response: Response) => {
     const authenticateTwitter = (consumerKey: string, consumerSecret: string): Promise<string> => {
-        const auth = base64_encode(`${encodeURIComponent(consumerKey)}:${encodeURIComponent(consumerSecret)}`)
+        const auth = base64Encode(`${encodeURIComponent(consumerKey)}:${encodeURIComponent(consumerSecret)}`)
         return fetch('https://api.twitter.com/oauth2/token', {
             body: 'grant_type=client_credentials',
             headers: {

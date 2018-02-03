@@ -1,1 +1,1 @@
-export const base64_encode = (s: string) => new Buffer(s).toString('base64')
+export const base64Encode = (s: string) => new Buffer(s).toString('base64')
