@@ -20,7 +20,7 @@
     "gulp-typescript": "^3.2.2",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.1",
-    "typescript": "^2.5.3"
+    "typescript": "2.7"
   },
   "jest": {
     "transform": {
