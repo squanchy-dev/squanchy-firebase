@@ -1,31 +1,40 @@
-import { FirebaseApp } from "../firebase"
 import { Request, Response } from 'express'
-import { Speaker, SchedulePage, Track } from "./schedule-view-data"
-import { DayData, EventData, SubmissionData, PlaceData, TrackData, SpeakerData, UserData, LevelData } from "../firestore/data"
+import { FirebaseApp } from '../firebase'
 import { firestoreCollection, WithId } from '../firestore/collection'
+import {
+    DayData,
+    EventData,
+    LevelData,
+    PlaceData,
+    SpeakerData,
+    SubmissionData,
+    TrackData,
+    UserData,
+} from '../firestore/data'
+import { SchedulePage, Speaker, Track } from './schedule-view-data'
 
 export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
-    const days = collection<DayData>('days')
-    const events = collection<EventData>('events')
-    const submissions = collection<SubmissionData>('submissions')
-    const places = collection<PlaceData>('places')
-    const tracks = collection<TrackData>('tracks')
-    const speakers = collection<SpeakerData>('speakers')
-    const users = collection<UserData>('user_profiles')
-    const levels = collection<LevelData>('levels')
+    const daysPromise = collection<DayData>('days')
+    const eventsPromise = collection<EventData>('events')
+    const submissionsPromise = collection<SubmissionData>('submissions')
+    const placesPromise = collection<PlaceData>('places')
+    const tracksPromise = collection<TrackData>('tracks')
+    const speakersPromise = collection<SpeakerData>('speakers')
+    const usersPromise = collection<UserData>('user_profiles')
+    const levelsPromise = collection<LevelData>('levels')
 
     Promise.all([
-        days,
-        events,
-        submissions,
-        places,
-        tracks,
-        speakers,
-        users,
-        levels
+        daysPromise,
+        eventsPromise,
+        submissionsPromise,
+        placesPromise,
+        tracksPromise,
+        speakersPromise,
+        usersPromise,
+        levelsPromise
     ]).then(([
         days,
         events,
@@ -40,14 +49,14 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
             speaker,
             user: users.find(({ id }) => speaker.user_profile.id === id)!
         })).map(({ speaker, user }): Speaker => ({
-            id: speaker.id,
-            name: user.full_name,
             bio: speaker.bio,
             companyName: speaker.company_name,
             companyUrl: speaker.company_url,
-            twitterUsername: speaker.twitter_handle,
+            id: speaker.id,
+            name: user.full_name,
+            personalUrl: speaker.personal_url,
             photoUrl: user.profile_pic,
-            personalUrl: speaker.personal_url
+            twitterUsername: speaker.twitter_handle,
         }))
 
         const schedulePages = firestore.collection('views')
@@ -68,19 +77,22 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name
                         : null
 
-                    const eventSpeakers = flattenedSpeakers.filter(({ id }) => (submission.speakers || []).findIndex(({ id: speakerId }) => speakerId === id) !== -1)
+                    const eventSpeakers = flattenedSpeakers
+                        .filter(({ id }) =>
+                            (submission.speakers || [])
+                                .findIndex(({ id: speakerId }) => speakerId === id) !== -1)
 
                     return {
-                        id: event.id,
-                        title: submission.title,
-                        startTime: event.start_time,
+                        description: submission.abstract,
                         endTime: event.end_time,
-                        place: place,
-                        track: trackFrom(track),
-                        speakers: eventSpeakers,
                         experienceLevel: level,
+                        id: event.id,
+                        place,
+                        speakers: eventSpeakers,
+                        startTime: event.start_time,
+                        title: submission.title,
+                        track: trackFrom(track),
                         type: event.type,
-                        description: submission.abstract
                     }
                 })
             }
@@ -97,10 +109,10 @@ const trackFrom = (rawTrack: WithId<TrackData> | null): Track | null => {
         return null
     }
     return {
+        accentColor: rawTrack.accent_color,
+        iconUrl: rawTrack.icon_url,
         id: rawTrack.id,
         name: rawTrack.name,
-        accentColor: rawTrack.accent_color,
         textColor: rawTrack.text_color,
-        iconUrl: rawTrack.icon_url
     }
 }

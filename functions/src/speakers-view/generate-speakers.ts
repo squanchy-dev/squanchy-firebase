@@ -1,19 +1,20 @@
-import { FirebaseApp } from "../firebase"
 import { Request, Response } from 'express'
-import { firestoreCollection, WithId } from "../firestore/collection"
-import { SpeakerData, UserData } from "../firestore/data"
-import { SpeakerPage } from "./speakers-view-data"
+
+import { FirebaseApp } from '../firebase'
+import { firestoreCollection, WithId } from '../firestore/collection'
+import { SpeakerData, UserData } from '../firestore/data'
+import { SpeakerPage } from './speakers-view-data'
 
 export const generateSpeakers = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
-    const speakers = collection<SpeakerData>('speakers')
-    const users = collection<UserData>('user_profiles')
+    const speakersPromise = collection<SpeakerData>('speakers')
+    const usersPromise = collection<UserData>('user_profiles')
 
     Promise.all([
-        speakers,
-        users
+        speakersPromise,
+        usersPromise
     ])
         .then(([speakers, users]) => {
             const speakerPages = firestore.collection('views')
@@ -34,14 +35,14 @@ export const generateSpeakers = (firebaseApp: FirebaseApp) => (_: Request, respo
 }
 
 const asSpeakerPage = (users: WithId<UserData>[]) => (speaker: SpeakerData): SpeakerPage => {
-    const user = users.find(user => user.id === speaker.user_profile.id)!
+    const user = users.find(it => it.id === speaker.user_profile.id)!
 
     return {
-        id: user.id,
-        name: user.full_name,
         bio: speaker.bio,
         companyName: speaker.company_name || null,
         companyUrl: speaker.company_url || null,
+        id: user.id,
+        name: user.full_name,
         personalUrl: speaker.personal_url || null,
         photoUrl: user.profile_pic || null,
         twitterUsername: speaker.twitter_handle || null
