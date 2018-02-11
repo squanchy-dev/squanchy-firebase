@@ -4,10 +4,12 @@ import fetch from 'node-fetch'
 
 import { migrateToFirestore } from './migrateToFirestore'
 import { generateSchedule } from './schedule-view/generate-schedule'
+import { search } from './search/search'
 import { generateSpeakers } from './speakers-view/generate-speakers'
 import { fetchTwitter } from './twitter/fetch-twitter'
 
-const firebaseConf = config().firebase
+const configuration = config()
+const firebaseConf = configuration.firebase
 const firebaseApp = initializeApp(firebaseConf)
 
 export = {
@@ -15,4 +17,5 @@ export = {
     generateSchedule: https.onRequest(generateSchedule(firebaseApp)),
     generateSpeakers: https.onRequest(generateSpeakers(firebaseApp)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
+    search: https.onRequest(search(firebaseApp, configuration.algolia))
 }
