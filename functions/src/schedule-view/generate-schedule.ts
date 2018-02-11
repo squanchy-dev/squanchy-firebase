@@ -12,6 +12,7 @@ import {
     UserData,
 } from '../firestore/data'
 import { SchedulePage, Speaker, Track } from './schedule-view-data'
+import { map } from '../optional'
 
 export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
@@ -50,11 +51,11 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
             user: users.find(({ id }) => speaker.user_profile.id === id)!
         })).map(({ speaker, user }): Speaker => ({
             bio: speaker.bio,
-            companyName: speaker.company_name,
-            companyUrl: speaker.company_url,
+            companyName: map(speaker.company_name),
+            companyUrl: map(speaker.company_url),
             id: speaker.id,
             name: user.full_name,
-            personalUrl: speaker.personal_url,
+            personalUrl: map(speaker.personal_url),
             photoUrl: user.profile_pic,
             twitterUsername: speaker.twitter_handle,
         }))
@@ -69,8 +70,8 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
                 day,
                 events: eventsOfTheDay.map(event => {
                     const submission = submissions.find(({ id }) => event.submission.id === id)!
-                    const place = places.find(({ id }) => event.place.id === id) || null
-                    const track = tracks.find(({ id }) => event.track.id === id) || null
+                    const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
+                    const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
                     const submissionLevel = submission.level
 
                     const level = submissionLevel
@@ -92,7 +93,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
                         startTime: event.start_time,
                         title: submission.title,
                         track: trackFrom(track),
-                        type: event.type,
+                        type: event.type || 'talk',
                     }
                 })
             }
