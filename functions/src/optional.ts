@@ -7,9 +7,9 @@ export function present<T>(optional: Optional<T>): optional is T {
 const identity = (a: any) => a
 
 export function map<T, R>(it: T | null | undefined, fn: (t: T) => R = identity): R | null {
-    if (!it) {
+    if (it) {
+        return fn(it)
+    } else {
         return null
     }
-
-    return fn(it)
 }
