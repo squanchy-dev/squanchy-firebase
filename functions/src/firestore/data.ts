@@ -26,10 +26,10 @@ export interface UserData {
 export interface EventData {
     readonly day: Reference<DayData>
     readonly end_time: Date
-    readonly place: Reference<PlaceData> | null
+    readonly place: Optional<Reference<PlaceData>>
     readonly start_time: Date
     readonly submission: Reference<SubmissionData>
-    readonly track: Reference<TrackData> | null
+    readonly track: Optional<Reference<TrackData>>
     readonly type: Optional<string>
 }
 
@@ -46,7 +46,7 @@ export interface PlaceData {
 export interface SubmissionData {
     readonly abstract: string
     readonly category: Reference<CategoryData>
-    readonly level: Reference<LevelData> | null
+    readonly level: Optional<Reference<LevelData>>
     readonly notes: string
     readonly private: boolean
     readonly speakers: Reference<SpeakerData>[]
