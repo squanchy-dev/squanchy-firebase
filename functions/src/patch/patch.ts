@@ -56,7 +56,7 @@ const patch = (firebaseApp: FirebaseApp) => {
         try {
             body = mapFields(firebaseApp)(fields)
         } catch (error) {
-            res.status(400).send(error)
+            res.status(400).send(error.toString())
             return
         }
 
