@@ -78,7 +78,6 @@ const patch = (firebaseApp: FirebaseApp) => {
             return
         }
 
-        // todo transform body from FirestoreApiBody to what we want
         const firestore = firebaseApp.firestore()
         firestore.collection(collection).doc(id)
             .set(body)
