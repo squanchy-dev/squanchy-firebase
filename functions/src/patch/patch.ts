@@ -40,7 +40,7 @@ const patch = (firebaseApp: FirebaseApp) => {
     app.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
-        const {fields} = req.body
+        const { fields } = req.body
 
         const validators = collectionsValidator[collection]
         if (!validators) {
@@ -52,7 +52,13 @@ const patch = (firebaseApp: FirebaseApp) => {
             [key: string]: Failure[]
         }
 
-        const body = mapFields(firebaseApp)(fields)
+        let body: { [field: string]: any }
+        try {
+            body = mapFields(firebaseApp)(fields)
+        } catch (error) {
+            res.status(400).send(error)
+            return
+        }
 
         const failures = Object.keys(validators).reduce((results: {}, field: string) => {
             const fieldValidators = validators[field]
