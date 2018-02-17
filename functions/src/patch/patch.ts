@@ -37,7 +37,6 @@ const patch = (firebaseApp: FirebaseApp) => {
         }
     }
 
-    // remove /projects/squanchy-dev/databases/(default)/documents
     app.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
