@@ -68,7 +68,6 @@ const patch = (firebaseApp: FirebaseApp) => {
 
         if (failed) {
             res.status(400).json({
-                body,
                 failures
             })
             return
@@ -79,7 +78,7 @@ const patch = (firebaseApp: FirebaseApp) => {
         firestore.collection(collection).doc(id)
             .set(body)
             .then(() => {
-                res.status(201).json(body)
+                res.status(201).send()
             })
             .catch(error => {
                 console.log(error)
