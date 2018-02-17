@@ -1,8 +1,8 @@
 export interface FirestoreApiBody {
-    fields: MapValue
+    fields: Fields
 }
 
-type FieldValue =
+export type FieldValue =
     StringValue |
     BooleanValue |
     ArrayValue |
@@ -13,40 +13,46 @@ type FieldValue =
     ReferenceValue |
     TimestampValue
 
-interface StringValue {
+export interface StringValue {
     'stringValue': string
 }
 
-interface BooleanValue {
+export interface BooleanValue {
     'booleanValue': string
 }
 
-interface ArrayValue {
-    values: FieldValue[]
-}
-
-interface IntegerValue {
-    'integerValue': number
-}
-
-interface DoubleValue {
-    'doubleValue': number
-}
-
-interface MapValue {
-    fields: {
-        [fieldName: string]: FieldValue
+export interface ArrayValue {
+    'arrayValue': {
+        values: FieldValue[]
     }
 }
 
-interface NullValue {
+export interface IntegerValue {
+    'integerValue': number
+}
+
+export interface DoubleValue {
+    'doubleValue': number
+}
+
+export interface MapValue {
+    'mapValue': {
+        fields: Fields
+    }
+}
+
+export interface Fields {
+    [fieldName: string]: FieldValue
+}
+
+export interface NullValue {
     'nullValue': null
 }
 
-interface ReferenceValue {
+export interface ReferenceValue {
     'referenceValue': string
 }
 
-interface TimestampValue {
+export interface TimestampValue {
     'timestampValue': number
 }
