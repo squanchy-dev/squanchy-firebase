@@ -1,5 +1,6 @@
 import * as express from 'express'
 import { FirebaseApp } from '../firebase'
+import { mapFields } from './map-fields'
 import { Failure, required, Validator } from './validator'
 
 const patch = (firebaseApp: FirebaseApp) => {
@@ -40,7 +41,7 @@ const patch = (firebaseApp: FirebaseApp) => {
     app.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
-        const body = req.body
+        const {fields} = req.body
 
         const validators = collectionsValidator[collection]
         if (!validators) {
@@ -51,6 +52,8 @@ const patch = (firebaseApp: FirebaseApp) => {
         interface Failures {
             [key: string]: Failure[]
         }
+
+        const body = mapFields(firebaseApp)(fields)
 
         const failures = Object.keys(validators).reduce((results: {}, field: string) => {
             const fieldValidators = validators[field]
@@ -65,6 +68,7 @@ const patch = (firebaseApp: FirebaseApp) => {
 
         if (failed) {
             res.status(400).json({
+                body,
                 failures
             })
             return
@@ -75,7 +79,7 @@ const patch = (firebaseApp: FirebaseApp) => {
         firestore.collection(collection).doc(id)
             .set(body)
             .then(() => {
-                res.status(201).send()
+                res.status(201).json(body)
             })
             .catch(error => {
                 console.log(error)
