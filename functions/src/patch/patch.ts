@@ -1,16 +1,90 @@
 import * as express from 'express'
+import { FirebaseApp } from '../firebase'
+import { Failure, required, Validator } from './validator'
 
-const patch = express()
+const patch = (firebaseApp: FirebaseApp) => {
+    const app = express()
 
-// todo app.use(myMiddleware);
+    app.use((req, res, next) => {
+        const authorization = req.headers.authorization as string
 
-// remove /projects/squanchy-dev/databases/(default)/documents
-patch.patch('/:collection/:id', (req, res) => {
-    const collection = req.params.collection as string
-    const id = req.params.id as string
+        if (!authorization || !authorization.startsWith('Bearer ')) {
+            res.status(403).send('Unauthorized')
+            return
+        }
 
-    res.status(200).send(`Collection: ${collection}, Id: ${id}`)
-})
+        const token = authorization.substr('Bearer '.length)
+
+        if (token !== '123') { // TODO get token from config
+            res.status(403).send('Unauthorized')
+            return
+        }
+
+        return next()
+    })
+
+    interface CollectionsValidator {
+        [key: string]: {
+            [key: string]: Validator[]
+        }
+    }
+
+    const collectionsValidator: CollectionsValidator = {
+        bananas: {
+            banana: [required],
+            name: [required]
+        }
+    }
+
+    // remove /projects/squanchy-dev/databases/(default)/documents
+    app.patch('/:collection/:id', (req, res) => {
+        const collection = req.params.collection as string
+        const id = req.params.id as string
+        const body = req.body
+
+        const validators = collectionsValidator[collection]
+        if (!validators) {
+            res.status(400).send(`Invalid collection ${collection}`)
+            return
+        }
+
+        interface Failures {
+            [key: string]: Failure[]
+        }
+
+        const failures = Object.keys(validators).reduce((results: {}, field: string) => {
+            const fieldValidators = validators[field]
+            const fieldResults = fieldValidators.map(it => it(body[field]))
+                .filter(it => it.type === 'failure')
+            return { ...results, [field]: fieldResults }
+        }, {} as Failures)
+
+        const failed = Object.keys(failures)
+            .map(it => failures[it])
+            .some(it => it.length > 0)
+
+        if (failed) {
+            res.status(400).json({
+                failures
+            })
+            return
+        }
+
+        // todo transform body from FirestoreApiBody to what we want
+        const firestore = firebaseApp.firestore()
+        firestore.collection(collection).doc(id)
+            .set(body)
+            .then(() => {
+                res.status(201).send()
+            })
+            .catch(error => {
+                console.log(error)
+                res.status(500).send('Something went wrong!')
+            })
+    })
+
+    return app
+}
 
 export {
     patch
