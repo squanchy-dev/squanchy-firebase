@@ -78,7 +78,7 @@ const patch = (firebaseApp: FirebaseApp) => {
         firestore.collection(collection).doc(id)
             .set(body)
             .then(() => {
-                res.status(201).send()
+                res.status(200).send()
             })
             .catch(error => {
                 console.log(error)
