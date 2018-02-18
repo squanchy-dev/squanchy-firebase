@@ -4,9 +4,9 @@ import { mapFields } from './map-fields'
 import { Failure, required, Validator } from './validator'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
-    const app = express()
+    const expressApp = express()
 
-    app.use((req, res, next) => {
+    expressApp.use((req, res, next) => {
         const authorization = req.headers.authorization as string
 
         if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -37,7 +37,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         }
     }
 
-    app.patch('/:collection/:id', (req, res) => {
+    expressApp.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
         const { fields } = req.body
@@ -90,7 +90,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             })
     })
 
-    return app
+    return expressApp
 }
 
 export {
