@@ -3,7 +3,7 @@ import { FirebaseApp } from '../firebase'
 import { mapFields } from './map-fields'
 import { Failure, required, Validator } from './validator'
 
-const patch = (firebaseApp: FirebaseApp) => {
+const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     const app = express()
 
     app.use((req, res, next) => {
@@ -16,7 +16,7 @@ const patch = (firebaseApp: FirebaseApp) => {
 
         const token = authorization.substr('Bearer '.length)
 
-        if (token !== '123') { // TODO get token from config
+        if (token !== config.app_token) {
             res.status(403).send('Unauthorized')
             return
         }
