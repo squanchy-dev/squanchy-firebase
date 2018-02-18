@@ -1,3 +1,5 @@
+import { Optional } from '../optional'
+
 export interface Reference<T> {
     id: string
     get(): Promise<{data(): T}>
@@ -7,12 +9,12 @@ export const extract = <T> (ref: Reference<T>): Promise<T> => ref.get().then(it 
 
 export interface SpeakerData {
     readonly twitter_handle: string
-    readonly address: string | null
-    readonly job_description: string | null
+    readonly address: Optional<string>
+    readonly job_description: Optional<string>
     readonly bio: string
-    readonly company_name: string | null
-    readonly company_url: string | null
-    readonly personal_url: string | null
+    readonly company_name: Optional<string>
+    readonly company_url: Optional<string>
+    readonly personal_url: Optional<string>
     readonly user_profile: Reference<UserData>
 }
 
@@ -24,11 +26,11 @@ export interface UserData {
 export interface EventData {
     readonly day: Reference<DayData>
     readonly end_time: Date
-    readonly place: Reference<PlaceData>
+    readonly place: Optional<Reference<PlaceData>>
     readonly start_time: Date
     readonly submission: Reference<SubmissionData>
-    readonly track: Reference<TrackData>
-    readonly type: string
+    readonly track: Optional<Reference<TrackData>>
+    readonly type: Optional<string>
 }
 
 export interface DayData {
@@ -44,7 +46,7 @@ export interface PlaceData {
 export interface SubmissionData {
     readonly abstract: string
     readonly category: Reference<CategoryData>
-    readonly level: Reference<LevelData> | null
+    readonly level: Optional<Reference<LevelData>>
     readonly notes: string
     readonly private: boolean
     readonly speakers: Reference<SpeakerData>[]
