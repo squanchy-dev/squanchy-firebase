@@ -1,8 +1,8 @@
 import * as express from 'express'
 import { FirebaseApp } from '../firebase'
 import { mapFields } from './map-fields'
-import { required, Validator } from './validator'
 import { mapObject } from '../objects'
+import { squanchyValidators } from './squanchy-validators'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     const expressApp = express()
@@ -25,25 +25,12 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         return next()
     })
 
-    interface CollectionsValidator {
-        [key: string]: {
-            [key: string]: Validator[]
-        }
-    }
-
-    const collectionsValidator: CollectionsValidator = {
-        bananas: {
-            banana: [required],
-            name: [required]
-        }
-    }
-
     expressApp.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
         const { fields } = req.body
 
-        const validators = collectionsValidator[collection]
+        const validators = squanchyValidators[collection]
         if (!validators) {
             res.status(400).send(`Invalid collection ${collection}`)
             return
