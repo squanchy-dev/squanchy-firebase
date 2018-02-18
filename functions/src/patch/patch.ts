@@ -1,7 +1,8 @@
 import * as express from 'express'
 import { FirebaseApp } from '../firebase'
 import { mapFields } from './map-fields'
-import { Failure, required, Validator } from './validator'
+import { required, Validator } from './validator'
+import { mapObject } from '../objects'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     const expressApp = express()
@@ -48,10 +49,6 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             return
         }
 
-        interface Failures {
-            [key: string]: Failure[]
-        }
-
         let body: { [field: string]: any }
         try {
             body = mapFields(firebaseApp)(fields)
@@ -60,12 +57,11 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             return
         }
 
-        const failures = Object.keys(validators).reduce((results: {}, field: string) => {
-            const fieldValidators = validators[field]
-            const fieldResults = fieldValidators.map(it => it(body[field]))
+        const failures = mapObject(
+            validators,
+            (fieldValidators, field) => fieldValidators.map(it => it(body[field]))
                 .filter(it => it.type === 'failure')
-            return { ...results, [field]: fieldResults }
-        }, {} as Failures)
+        )
 
         const failed = Object.keys(failures)
             .map(it => failures[it])

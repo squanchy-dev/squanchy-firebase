@@ -14,12 +14,10 @@ import {
     StringValue,
     TimestampValue
 } from './firestore-api'
+import { mapObject } from '../objects'
 
-export const mapFields = (app: FirebaseApp) => (fields: Fields): {[key: string]: any} => {
-    return Object.keys(fields)
-        .reduce((result, key) => {
-            return { ...result, [key]: mapField(app)(fields[key]) }
-        }, {})
+export const mapFields = (app: FirebaseApp) => (fields: Fields): { [key: string]: any } => {
+    return mapObject(fields, field => mapField(app)(field))
 }
 
 const mapField = (app: FirebaseApp) => (field: FieldValue): any => {
