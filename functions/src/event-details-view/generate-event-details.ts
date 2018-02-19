@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { firestoreCollection, WithId } from '../firestore/collection'
 import {
-    DayData,
     EventData,
     LevelData,
     PlaceData,
@@ -11,14 +10,13 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { SchedulePage, Speaker, Track } from './schedule-view-data'
+import { Event, Speaker, Track } from './event-details-view-data'
 import { map } from '../optional'
 
-export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
+export const generateEventDetails = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
     const collection = firestoreCollection(firebaseApp)
 
-    const daysPromise = collection<DayData>('days')
     const eventsPromise = collection<EventData>('events')
     const submissionsPromise = collection<SubmissionData>('submissions')
     const placesPromise = collection<PlaceData>('places')
@@ -28,7 +26,6 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
     const levelsPromise = collection<LevelData>('levels')
 
     Promise.all([
-        daysPromise,
         eventsPromise,
         submissionsPromise,
         placesPromise,
@@ -37,8 +34,7 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
         usersPromise,
         levelsPromise
     ]).then(([
-        days,
-        events,
+        eventsData,
         submissions,
         places,
         tracks,
@@ -60,48 +56,45 @@ export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, respo
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const schedulePages = firestore.collection('views')
-            .doc('schedule')
-            .collection('schedule_pages')
+        const eventDetails = firestore.collection('views')
+            .doc('event_details')
+            .collection('events')
 
-        return Promise.all(days.map(day => {
-            const eventsOfTheDay = events.filter(event => event.day.id === day.id)
-            const schedulePage: SchedulePage = {
-                day,
-                events: eventsOfTheDay.map(event => {
-                    const submission = submissions.find(({ id }) => event.submission.id === id)!
-                    const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
-                    const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
-                    const submissionLevel = submission.level
+        return Promise.all(eventsData.map(eventData => {
+            const submission = submissions.find(({ id }) => eventData.submission.id === id)!
+            const place = map(eventData.place, it => places.find(({ id }) => it.id === id) || null)
+            const track = map(eventData.track, it => tracks.find(({ id }) => it.id === id) || null)
+            const submissionLevel = submission.level
 
-                    const level = submissionLevel
-                        ? levels.find(({ id }) => submissionLevel.id === id)!.name
-                        : null
+            const level = submissionLevel
+                ? levels.find(({ id }) => submissionLevel.id === id)!.name
+                : null
 
-                    const eventSpeakers = flattenedSpeakers
-                        .filter(({ id }) =>
-                            (submission.speakers || [])
-                                .findIndex(({ id: speakerId }) => speakerId === id) !== -1)
+            const eventSpeakers = flattenedSpeakers
+                .filter(({ id }) =>
+                    (submission.speakers || [])
+                        .findIndex(({ id: speakerId }) => speakerId === id) !== -1)
 
-                    return {
-                        description: submission.abstract,
-                        endTime: event.end_time,
-                        experienceLevel: level,
-                        id: event.id,
-                        place,
-                        speakers: eventSpeakers,
-                        startTime: event.start_time,
-                        title: submission.title,
-                        track: trackFrom(track),
-                        type: event.type || 'talk',
-                    }
-                })
+            const event: Event = {
+                description: submission.abstract,
+                endTime: eventData.end_time,
+                experienceLevel: level,
+                id: eventData.id,
+                place,
+                speakers: eventSpeakers,
+                startTime: eventData.start_time,
+                title: submission.title,
+                track: trackFrom(track),
+                type: eventData.type || 'talk',
             }
 
-            return schedulePages.doc(day.id).set(schedulePage)
+            return eventDetails.doc(event.id).set(event)
         }))
     }).then(() => {
         response.status(200).send('Yay!')
+    }).catch(error => {
+        console.error(error)
+        response.status(500).send('Nay.')
     })
 }
 
