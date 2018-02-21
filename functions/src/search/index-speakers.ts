@@ -5,7 +5,7 @@ import { firestoreCollection, WithId } from '../firestore/collection'
 import { SpeakerData, UserData } from '../firestore/data'
 import { SpeakerRecord } from './records'
 
-export const searchSpeakers = (firebaseApp: FirebaseApp, algolia: AlgoliaClient): Promise<void> => {
+export const indexSpeakers = (firebaseApp: FirebaseApp, algolia: AlgoliaClient): Promise<void> => {
     const collection = firestoreCollection(firebaseApp)
     const speakersIndex = algolia.initIndex('speakers')
 

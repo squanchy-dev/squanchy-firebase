@@ -6,7 +6,7 @@ import { generateEventDetails } from './event-details-view/generate-event-detail
 import { migrateToFirestore } from './migrateToFirestore'
 import { patch } from './patch/patch'
 import { generateSchedule } from './schedule-view/generate-schedule'
-import { search } from './search/search'
+import { indexContent } from './search/index-contents'
 import { generateSpeakers } from './speakers-view/generate-speakers'
 import { fetchTwitter } from './twitter/fetch-twitter'
 
@@ -24,7 +24,7 @@ export = {
     generateEventDetails: https.onRequest(generateEventDetails(firebaseApp)),
     generateSchedule: https.onRequest(generateSchedule(firebaseApp)),
     generateSpeakers: https.onRequest(generateSpeakers(firebaseApp)),
+    indexContent: https.onRequest(indexContent(firebaseApp, algoliaConf)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
-    search: https.onRequest(search(firebaseApp, algoliaConf))
 }

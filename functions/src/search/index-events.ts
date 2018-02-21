@@ -5,7 +5,7 @@ import { firestoreCollection, WithId } from '../firestore/collection'
 import { EventData, SubmissionData } from '../firestore/data'
 import { EventRecord } from './records'
 
-export const searchEvents = (firebaseApp: FirebaseApp, algolia: AlgoliaClient): Promise<void> => {
+export const indexEvents = (firebaseApp: FirebaseApp, algolia: AlgoliaClient): Promise<void> => {
     const eventsIndex = algolia.initIndex('events')
 
     const collection = firestoreCollection(firebaseApp)
