@@ -9,8 +9,10 @@
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
-    "@firebase/app-types": "^0.1.1",
+    "@types/algoliasearch": "^3.24.9",
     "@types/node-fetch": "^1.6.7",
+    "algoliasearch": "^3.24.11",
+    "@firebase/app-types": "^0.1.1",
     "express": "^4.16.2",
     "firebase-admin": "^5.8.1",
     "firebase-functions": "^0.8.1",
