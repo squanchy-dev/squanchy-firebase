@@ -1,7 +1,7 @@
 service cloud.firestore {
 
-  function userIsSignedIn() {
-    return request.auth.uid != null;
+  function userIsSignedInWith(userId) {
+    return request.auth.uid == userId;
   }
 
   match /databases/{database}/documents {
@@ -10,7 +10,7 @@ service cloud.firestore {
     }
 
     match /user_data/{uid}/{document=**} {
-      allow read, write: if userIsSignedIn()
+      allow read, write: if userIsSignedInWith(uid)
     }
   }
 }
