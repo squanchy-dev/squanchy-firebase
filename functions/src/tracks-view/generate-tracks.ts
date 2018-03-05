@@ -1,9 +1,7 @@
 import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { firestoreCollection } from '../firestore/collection'
-import {
-    TrackData
-} from '../firestore/data'
+import { TrackData } from '../firestore/data'
 import { Track } from './tracks-view-data'
 
 export const generateTracks = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
