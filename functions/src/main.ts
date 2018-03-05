@@ -8,6 +8,7 @@ import { patch } from './patch/patch'
 import { generateSchedule } from './schedule-view/generate-schedule'
 import { indexContent } from './search/index-contents'
 import { generateSpeakers } from './speakers-view/generate-speakers'
+import { generateTracks } from './tracks-view/generate-tracks'
 import { fetchTwitter } from './twitter/fetch-twitter'
 
 const {
@@ -24,6 +25,7 @@ export = {
     generateEventDetails: https.onRequest(generateEventDetails(firebaseApp)),
     generateSchedule: https.onRequest(generateSchedule(firebaseApp)),
     generateSpeakers: https.onRequest(generateSpeakers(firebaseApp)),
+    generateTracks: https.onRequest(generateTracks(firebaseApp)),
     indexContent: https.onRequest(indexContent(firebaseApp, algoliaConf)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
