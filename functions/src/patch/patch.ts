@@ -3,10 +3,10 @@ import { FirebaseApp } from '../firebase'
 import { mapFields } from './map-fields'
 import { mapObject } from '../objects'
 import { squanchyValidators } from './squanchy-validators'
-import { isNotEmpty } from '../strings'
+import { ensureNotEmpty } from '../strings'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
-    isNotEmpty(config.vendor_name, 'config.vendor_name')
+    ensureNotEmpty(config.vendor_name, 'config.vendor_name')
 
     const expressApp = express()
 
