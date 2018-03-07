@@ -3,8 +3,11 @@ import { FirebaseApp } from '../firebase'
 import { mapFields } from './map-fields'
 import { mapObject } from '../objects'
 import { squanchyValidators } from './squanchy-validators'
+import { isNotEmpty } from '../strings'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
+    isNotEmpty(config.vendor_name, 'config.vendor_name')
+
     const expressApp = express()
 
     expressApp.use((req, res, next) => {
@@ -62,7 +65,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         }
 
         const firestore = firebaseApp.firestore()
-        firestore.collection('raw_data').doc('syx').collection(collection).doc(id)
+        firestore.collection('raw_data').doc(config.vendor_name).collection(collection).doc(id)
             .set(body)
             .then(() => {
                 res.status(200).send()

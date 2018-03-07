@@ -1,3 +1,4 @@
 interface PatchConfig {
-    app_token: string
+    app_token: string,
+    vendor_name: string
 }
