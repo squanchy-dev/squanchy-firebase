@@ -1,16 +1,16 @@
 import { Request, Response } from 'express'
 
 import { FirebaseApp } from '../firebase'
-import { firestoreCollection, WithId } from '../firestore/collection'
+import { firestoreRawCollection, WithId } from '../firestore/collection'
 import { SpeakerData, UserData } from '../firestore/data'
 import { SpeakerPage } from './speakers-view-data'
 
 export const generateSpeakers = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
-    const collection = firestoreCollection(firebaseApp)
+    const rawCollection = firestoreRawCollection(firebaseApp)
 
-    const speakersPromise = collection<SpeakerData>('speakers')
-    const usersPromise = collection<UserData>('user_profiles')
+    const speakersPromise = rawCollection<SpeakerData>('speakers')
+    const usersPromise = rawCollection<UserData>('user_profiles')
 
     Promise.all([
         speakersPromise,

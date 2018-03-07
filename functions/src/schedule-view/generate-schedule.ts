@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
-import { firestoreCollection, WithId } from '../firestore/collection'
+import { firestoreRawCollection, WithId } from '../firestore/collection'
 import {
     DayData,
     EventData,
@@ -16,16 +16,16 @@ import { map } from '../optional'
 
 export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
-    const collection = firestoreCollection(firebaseApp)
+    const rawCollection = firestoreRawCollection(firebaseApp)
 
-    const daysPromise = collection<DayData>('days')
-    const eventsPromise = collection<EventData>('events')
-    const submissionsPromise = collection<SubmissionData>('submissions')
-    const placesPromise = collection<PlaceData>('places')
-    const tracksPromise = collection<TrackData>('tracks')
-    const speakersPromise = collection<SpeakerData>('speakers')
-    const usersPromise = collection<UserData>('user_profiles')
-    const levelsPromise = collection<LevelData>('levels')
+    const daysPromise = rawCollection<DayData>('days')
+    const eventsPromise = rawCollection<EventData>('events')
+    const submissionsPromise = rawCollection<SubmissionData>('submissions')
+    const placesPromise = rawCollection<PlaceData>('places')
+    const tracksPromise = rawCollection<TrackData>('tracks')
+    const speakersPromise = rawCollection<SpeakerData>('speakers')
+    const usersPromise = rawCollection<UserData>('user_profiles')
+    const levelsPromise = rawCollection<LevelData>('levels')
 
     Promise.all([
         daysPromise,

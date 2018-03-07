@@ -1,14 +1,14 @@
 import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
-import { firestoreCollection } from '../firestore/collection'
+import { firestoreRawCollection } from '../firestore/collection'
 import { TrackData } from '../firestore/data'
 import { Track } from './tracks-view-data'
 
 export const generateTracks = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
-    const collection = firestoreCollection(firebaseApp)
+    const rawCollection = firestoreRawCollection(firebaseApp)
 
-    const tracksPromise = collection<TrackData>('tracks')
+    const tracksPromise = rawCollection<TrackData>('tracks')
 
     tracksPromise.then(tracks => {
         const tracksCollection = firestore.collection('views')
