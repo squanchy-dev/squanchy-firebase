@@ -13,9 +13,10 @@ export const indexContent =
             algoliaConfig.api_key
         )
 
+        const indexPrefix = algoliaConfig.index_prefix.replace(/[^\w]/, '_')
         Promise.all([
-            indexSpeakers(firebaseApp, algolia),
-            indexEvents(firebaseApp, algolia)
+            indexSpeakers(firebaseApp, algolia, indexPrefix),
+            indexEvents(firebaseApp, algolia, indexPrefix)
         ]).then(() => {
             response.status(200).send('Yay!')
         }).catch(error => {
@@ -23,3 +24,7 @@ export const indexContent =
             response.status(500).send('Nay!')
         })
     }
+
+const replaceNonWordCharsWithUnderscores = (original: string): string => {
+    original.replace(/[^\w]/, '_')
+}
