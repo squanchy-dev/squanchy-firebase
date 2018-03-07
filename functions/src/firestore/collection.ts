@@ -1,7 +1,7 @@
 import { FirebaseApp } from '../firebase'
 
-export const firestoreCollection = (firebaseApp: FirebaseApp) => <T>(collection: string): Promise<WithId<T>[]> => {
-    return firebaseApp.firestore().collection(collection)
+export const firestoreRawCollection = (firebaseApp: FirebaseApp) => <T>(collection: string): Promise<WithId<T>[]> => {
+    return firebaseApp.firestore().collection('raw_data').doc('syx').collection(collection)
         .get()
         .then(value => {
             return value.docs.map(doc => withId(doc.data() as T, doc.id))
