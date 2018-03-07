@@ -62,7 +62,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         }
 
         const firestore = firebaseApp.firestore()
-        firestore.collection(collection).doc(id)
+        firestore.collection('raw_data').doc('syx').collection(collection).doc(id)
             .set(body)
             .then(() => {
                 res.status(200).send()
