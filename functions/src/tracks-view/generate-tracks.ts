@@ -16,7 +16,7 @@ export const generateTracks = (firebaseApp: FirebaseApp) => (_: Request, respons
             .collection('tracks')
 
         return Promise.all(tracks.map(trackData => {
-            const event: Track = {
+            const track: Track = {
                 accentColor: trackData.accent_color,
                 iconUrl: trackData.icon_url,
                 id: trackData.id,
@@ -24,7 +24,7 @@ export const generateTracks = (firebaseApp: FirebaseApp) => (_: Request, respons
                 textColor: trackData.text_color
             }
 
-            return tracksCollection.doc(event.id).set(event)
+            return tracksCollection.doc(track.id).set(track)
         }))
     }).then(() => {
         response.status(200).send('Yay!')
