@@ -12,7 +12,7 @@ export const generateTracks = (firebaseApp: FirebaseApp) => (_: Request, respons
 
     tracksPromise.then(tracks => {
         const tracksCollection = firestore.collection('views')
-            .doc('tracks_view')
+            .doc('tracks')
             .collection('tracks')
 
         return Promise.all(tracks.map(trackData => {
