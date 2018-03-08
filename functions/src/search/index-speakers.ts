@@ -5,9 +5,10 @@ import { firestoreRawCollection, WithId } from '../firestore/collection'
 import { SpeakerData, UserData } from '../firestore/data'
 import { SpeakerRecord } from './records'
 
-export const indexSpeakers = (firebaseApp: FirebaseApp, algolia: AlgoliaClient): Promise<void> => {
-    const rawCollection = firestoreRawCollection(firebaseApp)
-    const speakersIndex = algolia.initIndex('speakers')
+export const indexSpeakers = (firebaseApp: FirebaseApp, algolia: AlgoliaClient, indexPrefix: string): Promise<void> => {
+    const speakersIndex = algolia.initIndex(`${indexPrefix}_speakers`)
+
+    const collection = firestoreCollection(firebaseApp)
 
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const userProfilesPromise = rawCollection<UserData>('user_profiles')
