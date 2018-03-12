@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
-import { firestoreRawCollection, WithId } from '../firestore/collection'
+import { WithId, RawCollection } from '../firestore/collection'
 import {
     EventData,
     LevelData,
@@ -13,10 +13,10 @@ import {
 import { Event, Speaker, Track } from './event-details-view-data'
 import { map } from '../optional'
 
-export const generateEventDetails = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
+export const generateEventDetails = (
+    firebaseApp: FirebaseApp, rawCollection: RawCollection
+) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
-    const rawCollection = firestoreRawCollection(firebaseApp)
-
     const eventsPromise = rawCollection<EventData>('events')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
     const placesPromise = rawCollection<PlaceData>('places')

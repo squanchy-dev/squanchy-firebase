@@ -10,6 +10,7 @@ import { indexContent } from './search/index-contents'
 import { generateSpeakers } from './speakers-view/generate-speakers'
 import { generateTracks } from './tracks-view/generate-tracks'
 import { fetchTwitter } from './twitter/fetch-twitter'
+import { firestoreRawCollection } from './firestore/collection'
 
 const {
     algolia: algoliaConf,
@@ -19,14 +20,15 @@ const {
 } = config()
 
 const firebaseApp = initializeApp(firebaseConf)
+const rawCollection = firestoreRawCollection(patchConf.vendor_name, firebaseApp)
 
 export = {
     fetchTwitter: https.onRequest(fetchTwitter(firebaseApp, fetch, twitterConf)),
-    generateEventDetails: https.onRequest(generateEventDetails(firebaseApp)),
-    generateSchedule: https.onRequest(generateSchedule(firebaseApp)),
-    generateSpeakers: https.onRequest(generateSpeakers(firebaseApp)),
-    generateTracks: https.onRequest(generateTracks(firebaseApp)),
-    indexContent: https.onRequest(indexContent(firebaseApp, algoliaConf)),
+    generateEventDetails: https.onRequest(generateEventDetails(firebaseApp, rawCollection)),
+    generateSchedule: https.onRequest(generateSchedule(firebaseApp, rawCollection)),
+    generateSpeakers: https.onRequest(generateSpeakers(firebaseApp, rawCollection)),
+    generateTracks: https.onRequest(generateTracks(firebaseApp, rawCollection)),
+    indexContent: https.onRequest(indexContent(rawCollection, algoliaConf)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
 }
