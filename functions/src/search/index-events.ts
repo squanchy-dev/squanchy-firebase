@@ -1,14 +1,15 @@
 import { AlgoliaClient } from 'algoliasearch'
-import { FirebaseApp } from '../firebase'
 
-import { firestoreRawCollection, WithId } from '../firestore/collection'
+import { WithId, RawCollection } from '../firestore/collection'
 import { EventData, SubmissionData } from '../firestore/data'
 import { EventRecord } from './records'
 
-export const indexEvents = (firebaseApp: FirebaseApp, algolia: AlgoliaClient, indexPrefix: string): Promise<void> => {
+export const indexEvents = (
+    rawCollection: RawCollection,
+    algolia: AlgoliaClient,
+    indexPrefix: string
+): Promise<void> => {
     const eventsIndex = algolia.initIndex(`${indexPrefix}_events`)
-
-    const rawCollection = firestoreRawCollection(firebaseApp)
 
     const eventsPromise = rawCollection<EventData>('events')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
-import { firestoreRawCollection, WithId } from '../firestore/collection'
+import { WithId, RawCollection } from '../firestore/collection'
 import {
     DayData,
     EventData,
@@ -14,9 +14,11 @@ import {
 import { SchedulePage, Speaker, Track } from './schedule-view-data'
 import { map } from '../optional'
 
-export const generateSchedule = (firebaseApp: FirebaseApp) => (_: Request, response: Response) => {
+export const generateSchedule = (
+    firebaseApp: FirebaseApp,
+    rawCollection: RawCollection
+) => (_: Request, response: Response) => {
     const firestore = firebaseApp.firestore()
-    const rawCollection = firestoreRawCollection(firebaseApp)
 
     const daysPromise = rawCollection<DayData>('days')
     const eventsPromise = rawCollection<EventData>('events')
