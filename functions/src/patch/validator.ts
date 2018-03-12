@@ -27,7 +27,7 @@ const validateOptional = <T>(predicate: Predicate<T>, failureMessage: string) =>
     return validate<T>(it => (it === undefined || it === null) || predicate(it), failureMessage)
 }
 
-export const required = validate<any>(it => it, 'Required')
+export const required = validate<any>(it => it !== null && it !== undefined, 'Required')
 export const isString = validateOptional<any>(it => typeof(it) === 'string', 'String')
 export const isDate = validateOptional<any>(it => it instanceof Date, 'Date')
 export const isInteger = validateOptional<any>(it => Number.isInteger(it), 'Integer')
