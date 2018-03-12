@@ -41,7 +41,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
 
         let body: { [field: string]: any }
         try {
-            body = mapFields(firebaseApp)(fields)
+            body = mapFields(firebaseApp, config.vendor_name)(fields)
         } catch (error) {
             res.status(400).send(error.toString())
             return

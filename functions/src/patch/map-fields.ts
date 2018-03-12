@@ -16,30 +16,30 @@ import {
 } from './firestore-api'
 import { mapObject } from '../objects'
 
-export const mapFields = (app: FirebaseApp) => (fields: Fields): { [key: string]: any } => {
-    return mapObject(fields, field => mapField(app)(field))
+export const mapFields = (app: FirebaseApp, vendorName: string) => (fields: Fields): { [key: string]: any } => {
+    return mapObject(fields, field => mapField(app, vendorName)(field))
 }
 
-const mapField = (app: FirebaseApp) => (field: FieldValue): any => {
+const mapField = (app: FirebaseApp, vendorName: string) => (field: FieldValue): any => {
     if (isString(field)) {
         return field.stringValue
     } else if (isBoolean(field)) {
         return field.booleanValue
     } else if (isArray(field)) {
-        return field.arrayValue.values.map(value => mapField(app)(value))
+        return field.arrayValue.values.map(value => mapField(app, vendorName)(value))
     } else if (isInteger(field)) {
         return field.integerValue
     } else if (isDouble(field)) {
         return field.doubleValue
     } else if (isMap(field)) {
-        return mapFields(app)(field.mapValue.fields)
+        return mapFields(app, vendorName)(field.mapValue.fields)
     } else if (isNull(field)) {
         return null
     } else if (isReference(field)) {
         const firestore = app.firestore()
 
         const [, collection, id] = field.referenceValue.split('/')
-        return firestore.collection(collection).doc(id)
+        return firestore.collection('raw_data').doc(vendorName).collection(collection).doc(id)
     } else if (isTimestamp(field)) {
         return new Date(field.timestampValue)
     } else {
