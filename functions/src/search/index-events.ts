@@ -9,7 +9,7 @@ export const indexEvents = (
     algolia: AlgoliaClient,
     indexPrefix: string
 ): Promise<void> => {
-    const eventsIndex = algolia.initIndex(`${indexPrefix}_events`)
+    const eventsIndex = algolia.initIndex(`${indexPrefix}events`)
 
     const eventsPromise = rawCollection<EventData>('events')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
