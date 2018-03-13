@@ -9,7 +9,7 @@ export const indexSpeakers = (
     algolia: AlgoliaClient,
     indexPrefix: string
 ): Promise<void> => {
-    const speakersIndex = algolia.initIndex(`${indexPrefix}_speakers`)
+    const speakersIndex = algolia.initIndex(`${indexPrefix}-speakers`)
 
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const userProfilesPromise = rawCollection<UserData>('user_profiles')

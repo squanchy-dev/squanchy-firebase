@@ -15,7 +15,7 @@ export const indexContent =
         )
 
         ensureNotEmpty(algoliaConfig.index_prefix, 'algoliaConfig.index_prefix')
-        const indexPrefix = `${replaceNonWordCharsWithUnderscores(algoliaConfig.index_prefix)}-`
+        const indexPrefix = replaceNonWordCharsWithUnderscores(algoliaConfig.index_prefix)
         Promise.all([
             indexSpeakers(rawCollection, algolia, indexPrefix),
             indexEvents(rawCollection, algolia, indexPrefix)
