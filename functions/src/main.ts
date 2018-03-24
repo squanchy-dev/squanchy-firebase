@@ -6,7 +6,7 @@ import { generateEventDetails } from './event-details-view/generate-event-detail
 import { migrateToFirestore } from './migrateToFirestore'
 import { patch } from './patch/patch'
 import { generateSchedule } from './schedule-view/generate-schedule'
-import { indexContent } from './search/index-contents'
+import { indexContent } from './index-contents/index-contents'
 import { generateSpeakers } from './speakers-view/generate-speakers'
 import { generateTracks } from './tracks-view/generate-tracks'
 import { fetchTwitter } from './twitter/fetch-twitter'
