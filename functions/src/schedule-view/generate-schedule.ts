@@ -80,10 +80,8 @@ export const generateSchedule = (
                         ? levels.find(({ id }) => submissionLevel.id === id)!.name
                         : null
 
-                    const eventSpeakers = flattenedSpeakers
-                        .filter(({ id }) =>
-                            (submission.speakers || [])
-                                .findIndex(({ id: speakerId }) => speakerId === id) !== -1)
+                    const eventSpeakers = (submission.speakers || [])
+                        .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
 
                     return {
                         description: submission.abstract,
