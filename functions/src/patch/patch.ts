@@ -47,32 +47,36 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             return
         }
 
-        const failures = mapObject(
+        const failuresPromise = mapObject(
             validators,
-            (fieldValidators, field) => fieldValidators.map(it => it(body[field]))
-                .filter(it => it.type === 'failure')
+            (fieldValidators, field) => {
+                return Promise.all(fieldValidators.map(it => it(body[field])))
+                    .then(fails => fails.filter(it => it.type === 'failure'))
+            }
         )
 
-        const failed = Object.keys(failures)
-            .map(it => failures[it])
-            .some(it => it.length > 0)
+        Promise.all(Object.keys(failuresPromise).map(it => failuresPromise[it]))
+            .then(failures => {
+                const failed = Object.keys(failures)
+                    .some(it => it.length > 0)
 
-        if (failed) {
-            res.status(400).json({
-                failures
-            })
-            return
-        }
+                if (failed) {
+                    res.status(400).json({
+                        failures
+                    })
+                    return
+                }
 
-        const firestore = firebaseApp.firestore()
-        firestore.collection('raw_data').doc(config.vendor_name).collection(collection).doc(id)
-            .set(body)
-            .then(() => {
-                res.status(200).send()
-            })
-            .catch(error => {
-                console.log(error)
-                res.status(500).send('Something went wrong!')
+                const firestore = firebaseApp.firestore()
+                firestore.collection('raw_data').doc(config.vendor_name).collection(collection).doc(id)
+                    .set(body)
+                    .then(() => {
+                        res.status(200).send()
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.status(500).send('Something went wrong!')
+                    })
             })
     })
 
