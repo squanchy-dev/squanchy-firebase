@@ -33,7 +33,7 @@ export const generateEventDetails = (
         usersPromise,
         levelsPromise
     ]).then(([
-        eventsData,
+        events,
         submissions,
         places,
         tracks,
@@ -55,10 +55,10 @@ export const generateEventDetails = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const firestoreEvents = eventsData.map(eventData => {
-            const submission = submissions.find(({ id }) => eventData.submission.id === id)!
-            const place = map(eventData.place, it => places.find(({ id }) => it.id === id) || null)
-            const track = map(eventData.track, it => tracks.find(({ id }) => it.id === id) || null)
+        return events.map(event => {
+            const submission = submissions.find(({ id }) => event.submission.id === id)!
+            const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
+            const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
             const submissionLevel = submission.level
 
             const level = submissionLevel
@@ -70,19 +70,19 @@ export const generateEventDetails = (
 
             return {
                 description: submission.abstract,
-                endTime: eventData.end_time,
+                endTime: event.end_time,
                 experienceLevel: level,
-                id: eventData.id,
+                id: event.id,
                 place,
                 // TODO remove filter when data is valid again
                 speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
-                startTime: eventData.start_time,
+                startTime: event.start_time,
                 title: submission.title,
                 track: trackFrom(track),
-                type: eventData.type || 'talk',
+                type: event.type || 'talk',
             }
         })
-
+    }).then(events => {
         const batch = firestore.batch()
 
         const eventDetails = firestore.collection('views')
@@ -92,7 +92,7 @@ export const generateEventDetails = (
         return eventDetails.get().then(snapshot => {
             snapshot.docs.forEach(doc => batch.delete(doc.ref))
 
-            firestoreEvents.forEach(event => {
+            events.forEach(event => {
                 const ref = eventDetails.doc(event.id)
                 batch.set(ref, event)
             })

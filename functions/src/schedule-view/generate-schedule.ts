@@ -61,7 +61,7 @@ export const generateSchedule = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const schedulePages = days.map(day => {
+        return days.map(day => {
             const eventsOfTheDay = events.filter(event => event.day.id === day.id)
             return {
                 day,
@@ -94,7 +94,7 @@ export const generateSchedule = (
                 })
             }
         })
-
+    }).then(schedulePages => {
         const schedulePagesCollection = firestore.collection('views')
             .doc('schedule')
             .collection('schedule_pages')
