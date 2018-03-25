@@ -1,4 +1,4 @@
-import { required, failure, success, isArray, isInteger } from '../../patch/validator'
+import { required, failure, success, isArray, isInteger, isString, isDate } from '../../patch/validator'
 
 describe('validators', () => {
     describe('required', () => {
@@ -23,6 +23,54 @@ describe('validators', () => {
         it('passes on truthy values', done => {
             required('Hello world!')
                 .then(result => expect(result).toEqual(success()))
+                .then(done)
+        })
+    })
+
+    describe('isString', () => {
+        it('passes with string values', done => {
+            isString('hello world!')
+                .then(result => expect(result).toEqual(success()))
+                .then(done)
+        })
+
+        it('fails for non string values', done => {
+            isString(123)
+                .then(result => expect(result).toEqual(failure('String')))
+                .then(done)
+        })
+    })
+
+    describe('isDate', () => {
+        it('succeeds for Date values', done => {
+            isDate(new Date())
+                .then(result => expect(result).toEqual(success()))
+                .then(done)
+        })
+
+        it('fails for non Date values', done => {
+            isDate(123)
+                .then(result => expect(result).toEqual(failure('Date')))
+                .then(done)
+        })
+    })
+
+    describe('isInteger', () => {
+        it('succeeds for integer values', done => {
+            isInteger(42)
+                .then(result => expect(result).toEqual(success()))
+                .then(done)
+        })
+
+        it('fails for non numeric values', done => {
+            isInteger('123')
+                .then(result => expect(result).toEqual(failure('Integer')))
+                .then(done)
+        })
+
+        it('fails for non integer numbers', done => {
+            isInteger(12.3)
+                .then(result => expect(result).toEqual(failure('Integer')))
                 .then(done)
         })
     })
