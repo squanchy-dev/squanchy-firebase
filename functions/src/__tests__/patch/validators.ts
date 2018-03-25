@@ -90,7 +90,7 @@ describe('validators', () => {
                 .then(done)
         })
 
-        it('passes if all validator pass for all items', done => {
+        it('passes if all validators pass for all items', done => {
             isArray([required, isInteger])([1, 2, 3])
                 .then(result => expect(result).toEqual(success()))
                 .then(done)
