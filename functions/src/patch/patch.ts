@@ -51,7 +51,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             validators,
             (fieldValidators, field) => {
                 return Promise.all(fieldValidators.map(it => it(body[field])))
-                    .then(fails => fails.filter(it => it.type === 'failure'))
+                    .then(results => results.filter(it => it.type === 'failure'))
             }
         )
 
