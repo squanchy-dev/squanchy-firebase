@@ -82,7 +82,7 @@ describe('validators', () => {
                 .then(done)
         })
 
-        it('passes with any empty array', done => {
+        it('passes with an empty array', done => {
             const alwaysFail = () => Promise.resolve(failure('failed'))
 
             isArray([alwaysFail])([])
