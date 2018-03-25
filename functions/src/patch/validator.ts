@@ -32,9 +32,25 @@ export const required = validate<any>(it => it !== null && it !== undefined, 'Re
 export const isString = validateOptional<any>(it => typeof (it) === 'string', 'String')
 export const isDate = validateOptional<any>(it => it instanceof Date, 'Date')
 export const isInteger = validateOptional<any>(it => Number.isInteger(it), 'Integer')
-export const isReference = validateOptional<any>(it => {
-    return it.id && it.parent && it.path
-}, 'Reference')
+
+export const isReference: Validator = (value: any): Promise<Result> => {
+    if (value === null || value === undefined) {
+        return Promise.resolve(success())
+    }
+
+    return Promise.resolve(value.id && value.parent && value.path)
+        .then(validFormat => {
+            if (!validFormat) {
+                return failure('Reference')
+            }
+
+            return value.get()
+                .then((doc: any) =>
+                    doc.exists
+                        ? success()
+                        : failure('Reference not existing'))
+        })
+}
 
 export const isArray = (validators: Validator[]): Validator => (list?: any[]) => {
     const resultsPromise = list!.map(it => Promise.all(validators.map(validator => validator(it))))
