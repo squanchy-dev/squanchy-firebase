@@ -56,15 +56,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             }
         )
 
-        Promise.all(Object.keys(failuresPromise).map(fieldName =>
-            failuresPromise[fieldName].then(results => ({ fieldName, results }))
-        ))
-            .then(failures => {
-                return failures.reduce((failuresObject, next) => ({
-                    ...failuresObject,
-                    [next.fieldName]: next.results
-                }), {} as { [fieldName: string]: Result[] })
-            })
+        awaitObject(failuresPromise)
             .then(failures => {
                 const failed = Object.keys(failures)
                     .map(fieldName => failures[fieldName])
