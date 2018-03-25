@@ -56,19 +56,19 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             }
         )
 
-        Promise.all(Object.keys(failuresPromise).map(key =>
-            failuresPromise[key].then(value => ({ key, value }))
+        Promise.all(Object.keys(failuresPromise).map(fieldName =>
+            failuresPromise[fieldName].then(results => ({ fieldName, results }))
         ))
             .then(failures => {
-                return failures.reduce((results, result) => ({
-                    ...results,
-                    [result.key]: result.value
-                }), {} as { [key: string]: Result[] })
+                return failures.reduce((failuresObject, next) => ({
+                    ...failuresObject,
+                    [next.fieldName]: next.results
+                }), {} as { [fieldName: string]: Result[] })
             })
             .then(failures => {
                 const failed = Object.keys(failures)
-                    .map(key => failures[key])
-                    .some(it => it.length > 0)
+                    .map(fieldName => failures[fieldName])
+                    .some(results => results.length > 0)
 
                 if (failed) {
                     res.status(400).json({
