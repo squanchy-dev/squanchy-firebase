@@ -3,6 +3,7 @@ import { AlgoliaClient } from 'algoliasearch'
 import { WithId, RawCollection } from '../firestore/collection'
 import { SpeakerData, UserData } from '../firestore/data'
 import { SpeakerRecord } from './records'
+import { clearIndex } from './clear-index'
 
 export const indexSpeakers = (
     rawCollection: RawCollection,
@@ -16,7 +17,10 @@ export const indexSpeakers = (
 
     return Promise.all([speakersPromise, userProfilesPromise])
         .then(([speakers, userProfiles]) => toSpeakerRecords(speakers, userProfiles))
-        .then(speakers => speakersIndex.addObjects(speakers))
+        .then(speakers => {
+            return clearIndex(speakersIndex)
+                .then(() =>  speakersIndex.addObjects(speakers))
+        })
 }
 
 const toSpeakerRecords = (speakers: WithId<SpeakerData>[], userProfiles: WithId<UserData>[]): SpeakerRecord[] => {
