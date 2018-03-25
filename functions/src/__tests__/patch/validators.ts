@@ -42,7 +42,7 @@ describe('validators', () => {
     })
 
     describe('isDate', () => {
-        it('succeeds for Date values', done => {
+        it('passes for Date values', done => {
             isDate(new Date())
                 .then(result => expect(result).toEqual(success()))
                 .then(done)
@@ -56,7 +56,7 @@ describe('validators', () => {
     })
 
     describe('isInteger', () => {
-        it('succeeds for integer values', done => {
+        it('passes for integer values', done => {
             isInteger(42)
                 .then(result => expect(result).toEqual(success()))
                 .then(done)
