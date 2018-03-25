@@ -27,7 +27,7 @@ export = {
     fetchTwitter: https.onRequest(fetchTwitter(firebaseApp, fetch, twitterConf)),
     generateEventDetails: https.onRequest(httpTrigger(generateEventDetails(firebaseApp, rawCollection))),
     generateSchedule: https.onRequest(httpTrigger(generateSchedule(firebaseApp, rawCollection))),
-    generateSpeakers: https.onRequest(generateSpeakers(firebaseApp, rawCollection)),
+    generateSpeakers: https.onRequest(httpTrigger(generateSpeakers(firebaseApp, rawCollection))),
     generateTracks: https.onRequest(generateTracks(firebaseApp, rawCollection)),
     indexContent: https.onRequest(indexContent(rawCollection, algoliaConf)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
