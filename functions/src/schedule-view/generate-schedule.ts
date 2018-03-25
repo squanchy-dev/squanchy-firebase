@@ -1,4 +1,3 @@
-import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import {
@@ -11,13 +10,13 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { SchedulePage, Speaker, Track } from './schedule-view-data'
+import { Speaker, Track } from './schedule-view-data'
 import { map } from '../optional'
 
 export const generateSchedule = (
     firebaseApp: FirebaseApp,
     rawCollection: RawCollection
-) => (_: Request, response: Response) => {
+) => () => {
     const firestore = firebaseApp.firestore()
 
     const daysPromise = rawCollection<DayData>('days')
@@ -29,7 +28,7 @@ export const generateSchedule = (
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
 
-    Promise.all([
+    return Promise.all([
         daysPromise,
         eventsPromise,
         submissionsPromise,
@@ -62,13 +61,9 @@ export const generateSchedule = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const schedulePages = firestore.collection('views')
-            .doc('schedule')
-            .collection('schedule_pages')
-
-        return Promise.all(days.map(day => {
+        const schedulePages = days.map(day => {
             const eventsOfTheDay = events.filter(event => event.day.id === day.id)
-            const schedulePage: SchedulePage = {
+            return {
                 day,
                 events: eventsOfTheDay.map(event => {
                     const submission = submissions.find(({ id }) => event.submission.id === id)!
@@ -89,7 +84,8 @@ export const generateSchedule = (
                         experienceLevel: level,
                         id: event.id,
                         place,
-                        speakers: eventSpeakers,
+                        // TODO remove filter when data is valid again
+                        speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
                         startTime: event.start_time,
                         title: submission.title,
                         track: trackFrom(track),
@@ -97,11 +93,24 @@ export const generateSchedule = (
                     }
                 })
             }
+        })
 
-            return schedulePages.doc(day.id).set(schedulePage)
-        }))
-    }).then(() => {
-        response.status(200).send('Yay!')
+        const schedulePagesCollection = firestore.collection('views')
+            .doc('schedule')
+            .collection('schedule_pages')
+
+        const batch = firestore.batch()
+
+        return schedulePagesCollection.get().then(snapshot => {
+            snapshot.docs.forEach(doc => batch.delete(doc.ref))
+
+            schedulePages.forEach(schedulePage => {
+                const ref = schedulePagesCollection.doc(schedulePage.day.id)
+                batch.set(ref, schedulePage)
+            })
+
+            return batch.commit()
+        })
     })
 }
 
