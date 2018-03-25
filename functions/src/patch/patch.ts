@@ -4,6 +4,7 @@ import { mapFields } from './map-fields'
 import { mapObject } from '../objects'
 import { squanchyValidators } from './squanchy-validators'
 import { ensureNotEmpty } from '../strings'
+import { Result } from './validator';
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     ensureNotEmpty(config.vendor_name, 'config.vendor_name')
@@ -55,9 +56,19 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
             }
         )
 
-        Promise.all(Object.keys(failuresPromise).map(it => failuresPromise[it]))
+        Promise.all(Object.keys(failuresPromise).map(key =>
+            failuresPromise[key].then(value => ({ key, value }))
+        ))
             .then(failures => {
-                const failed = failures.some(it => it.length > 0)
+                return failures.reduce((results, result) => ({
+                    ...results,
+                    [result.key]: result.value
+                }), {} as { [key: string]: Result[] })
+            })
+            .then(failures => {
+                const failed = Object.keys(failures)
+                    .map(key => failures[key])
+                    .some(it => it.length > 0)
 
                 if (failed) {
                     res.status(400).json({
