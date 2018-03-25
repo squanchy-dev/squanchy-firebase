@@ -48,7 +48,7 @@ export const isReference: Validator = (value: any): Promise<Result> => {
                 .then((doc: any) =>
                     doc.exists
                         ? success()
-                        : failure('Reference not existing'))
+                        : failure('Reference does not exist'))
         })
 }
 
