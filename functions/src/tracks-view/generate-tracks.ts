@@ -1,37 +1,40 @@
-import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { RawCollection } from '../firestore/collection'
 import { TrackData } from '../firestore/data'
-import { Track } from './tracks-view-data'
 
 export const generateTracks = (
     firebaseApp: FirebaseApp,
     rawCollection: RawCollection
-) => (_: Request, response: Response) => {
+) => () => {
     const firestore = firebaseApp.firestore()
 
     const tracksPromise = rawCollection<TrackData>('tracks')
 
-    tracksPromise.then(tracks => {
-        const tracksCollection = firestore.collection('views')
-            .doc('tracks')
-            .collection('tracks')
-
-        return Promise.all(tracks.map(trackData => {
-            const track: Track = {
+    return tracksPromise.then(tracks => {
+        return tracks.map(trackData => {
+            return {
                 accentColor: trackData.accent_color,
                 iconUrl: trackData.icon_url,
                 id: trackData.id,
                 name: trackData.name,
                 textColor: trackData.text_color
             }
-
-            return tracksCollection.doc(track.id).set(track)
-        }))
-    }).then(() => {
-        response.status(200).send('Yay!')
-    }).catch(error => {
-        console.error(error)
-        response.status(500).send('Nay.')
+        })
     })
+        .then(tracks => {
+            const batch = firestore.batch()
+            const tracksCollection = firestore.collection('views')
+                .doc('tracks')
+                .collection('tracks')
+
+            return tracksCollection.get().then(snapshot => {
+                snapshot.docs.forEach(doc => batch.delete(doc.ref))
+                tracks.forEach(track => {
+                    const ref = tracksCollection.doc(track.id)
+                    batch.set(ref, track)
+                })
+
+                return batch.commit()
+            })
+        })
 }

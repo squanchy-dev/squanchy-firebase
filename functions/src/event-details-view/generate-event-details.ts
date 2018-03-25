@@ -1,4 +1,3 @@
-import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import {
@@ -10,12 +9,12 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { Event, Speaker, Track } from './event-details-view-data'
+import { Speaker, Track } from './event-details-view-data'
 import { map } from '../optional'
 
 export const generateEventDetails = (
     firebaseApp: FirebaseApp, rawCollection: RawCollection
-) => (_: Request, response: Response) => {
+) => () => {
     const firestore = firebaseApp.firestore()
     const eventsPromise = rawCollection<EventData>('events')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
@@ -25,7 +24,7 @@ export const generateEventDetails = (
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
 
-    Promise.all([
+    return Promise.all([
         eventsPromise,
         submissionsPromise,
         placesPromise,
@@ -34,7 +33,7 @@ export const generateEventDetails = (
         usersPromise,
         levelsPromise
     ]).then(([
-        eventsData,
+        events,
         submissions,
         places,
         tracks,
@@ -56,14 +55,10 @@ export const generateEventDetails = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const eventDetails = firestore.collection('views')
-            .doc('event_details')
-            .collection('events')
-
-        return Promise.all(eventsData.map(eventData => {
-            const submission = submissions.find(({ id }) => eventData.submission.id === id)!
-            const place = map(eventData.place, it => places.find(({ id }) => it.id === id) || null)
-            const track = map(eventData.track, it => tracks.find(({ id }) => it.id === id) || null)
+        return events.map(event => {
+            const submission = submissions.find(({ id }) => event.submission.id === id)!
+            const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
+            const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
             const submissionLevel = submission.level
 
             const level = submissionLevel
@@ -73,26 +68,37 @@ export const generateEventDetails = (
             const eventSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
 
-            const event: Event = {
+            return {
                 description: submission.abstract,
-                endTime: eventData.end_time,
+                endTime: event.end_time,
                 experienceLevel: level,
-                id: eventData.id,
+                id: event.id,
                 place,
-                speakers: eventSpeakers,
-                startTime: eventData.start_time,
+                // TODO remove filter when data is valid again
+                speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
+                startTime: event.start_time,
                 title: submission.title,
                 track: trackFrom(track),
-                type: eventData.type || 'talk',
+                type: event.type || 'talk',
             }
+        })
+    }).then(events => {
+        const batch = firestore.batch()
 
-            return eventDetails.doc(event.id).set(event)
-        }))
-    }).then(() => {
-        response.status(200).send('Yay!')
-    }).catch(error => {
-        console.error(error)
-        response.status(500).send('Nay.')
+        const eventDetails = firestore.collection('views')
+            .doc('event_details')
+            .collection('events')
+
+        return eventDetails.get().then(snapshot => {
+            snapshot.docs.forEach(doc => batch.delete(doc.ref))
+
+            events.forEach(event => {
+                const ref = eventDetails.doc(event.id)
+                batch.set(ref, event)
+            })
+
+            return batch.commit()
+        })
     })
 }
 

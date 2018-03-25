@@ -1,5 +1,3 @@
-import { Request, Response } from 'express'
-
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import { SpeakerData, UserData } from '../firestore/data'
@@ -8,31 +6,32 @@ import { SpeakerPage } from './speakers-view-data'
 export const generateSpeakers = (
     firebaseApp: FirebaseApp,
     rawCollection: RawCollection
-) => (_: Request, response: Response) => {
+) => () => {
     const firestore = firebaseApp.firestore()
 
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const usersPromise = rawCollection<UserData>('user_profiles')
 
-    Promise.all([
+    return Promise.all([
         speakersPromise,
         usersPromise
     ])
-        .then(([speakers, users]) => {
-            const speakerPages = firestore.collection('views')
+        .then(([speakers, users]) => speakers.map(asSpeakerPage(users)))
+        .then(speakerPages => {
+            const batch = firestore.batch()
+            const speakerPagesCollection = firestore.collection('views')
                 .doc('speakers')
                 .collection('speaker_pages')
 
-            return Promise.all(speakers.map(asSpeakerPage(users)).map(speakerPage => {
-                return speakerPages.doc(speakerPage.id).set(speakerPage)
-            }))
-        })
-        .then(() => {
-            response.status(200).send('Yay!')
-        })
-        .catch(error => {
-            console.error(error)
-            response.status(500).send('Whoops! Something went wrong.')
+            return speakerPagesCollection.get().then(snapshot => {
+                snapshot.docs.forEach(doc => batch.delete(doc.ref))
+                speakerPages.forEach(speakerPage => {
+                    const ref = speakerPagesCollection.doc(speakerPage.id)
+                    batch.set(ref, speakerPage)
+                })
+
+                return batch.commit()
+            })
         })
 }
 
