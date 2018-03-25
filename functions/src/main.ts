@@ -11,6 +11,7 @@ import { generateSpeakers } from './speakers-view/generate-speakers'
 import { generateTracks } from './tracks-view/generate-tracks'
 import { fetchTwitter } from './twitter/fetch-twitter'
 import { firestoreRawCollection } from './firestore/collection'
+import { httpTrigger } from './http/http-trigger'
 
 const {
     algolia: algoliaConf,
@@ -24,7 +25,7 @@ const rawCollection = firestoreRawCollection(patchConf.vendor_name, firebaseApp)
 
 export = {
     fetchTwitter: https.onRequest(fetchTwitter(firebaseApp, fetch, twitterConf)),
-    generateEventDetails: https.onRequest(generateEventDetails(firebaseApp, rawCollection)),
+    generateEventDetails: https.onRequest(httpTrigger(generateEventDetails(firebaseApp, rawCollection))),
     generateSchedule: https.onRequest(generateSchedule(firebaseApp, rawCollection)),
     generateSpeakers: https.onRequest(generateSpeakers(firebaseApp, rawCollection)),
     generateTracks: https.onRequest(generateTracks(firebaseApp, rawCollection)),

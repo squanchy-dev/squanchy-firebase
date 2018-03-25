@@ -1,4 +1,3 @@
-import { Request, Response } from 'express'
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import {
@@ -10,12 +9,12 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { Event, Speaker, Track } from './event-details-view-data'
+import { Speaker, Track } from './event-details-view-data'
 import { map } from '../optional'
 
 export const generateEventDetails = (
     firebaseApp: FirebaseApp, rawCollection: RawCollection
-) => (_: Request, response: Response) => {
+) => () => {
     const firestore = firebaseApp.firestore()
     const eventsPromise = rawCollection<EventData>('events')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
@@ -25,7 +24,7 @@ export const generateEventDetails = (
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
 
-    Promise.all([
+    return Promise.all([
         eventsPromise,
         submissionsPromise,
         placesPromise,
@@ -56,11 +55,7 @@ export const generateEventDetails = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        const eventDetails = firestore.collection('views')
-            .doc('event_details')
-            .collection('events')
-
-        return Promise.all(eventsData.map(eventData => {
+        const firestoreEvents = eventsData.map(eventData => {
             const submission = submissions.find(({ id }) => eventData.submission.id === id)!
             const place = map(eventData.place, it => places.find(({ id }) => it.id === id) || null)
             const track = map(eventData.track, it => tracks.find(({ id }) => it.id === id) || null)
@@ -73,26 +68,37 @@ export const generateEventDetails = (
             const eventSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
 
-            const event: Event = {
+            return {
                 description: submission.abstract,
                 endTime: eventData.end_time,
                 experienceLevel: level,
                 id: eventData.id,
                 place,
-                speakers: eventSpeakers,
+                // TODO remove filter when data is valid again
+                speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
                 startTime: eventData.start_time,
                 title: submission.title,
                 track: trackFrom(track),
                 type: eventData.type || 'talk',
             }
+        })
 
-            return eventDetails.doc(event.id).set(event)
-        }))
-    }).then(() => {
-        response.status(200).send('Yay!')
-    }).catch(error => {
-        console.error(error)
-        response.status(500).send('Nay.')
+        const batch = firestore.batch()
+
+        const eventDetails = firestore.collection('views')
+            .doc('event_details')
+            .collection('events')
+
+        return eventDetails.get().then(snapshot => {
+            snapshot.docs.forEach(doc => batch.delete(doc.ref))
+
+            firestoreEvents.forEach(event => {
+                const ref = eventDetails.doc(event.id)
+                batch.set(ref, event)
+            })
+
+            return batch.commit()
+        })
     })
 }
 
