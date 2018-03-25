@@ -3,6 +3,7 @@ import { AlgoliaClient } from 'algoliasearch'
 import { WithId, RawCollection } from '../firestore/collection'
 import { EventData, SubmissionData } from '../firestore/data'
 import { EventRecord } from './records'
+import { clearIndex } from './clear-index'
 
 export const indexEvents = (
     rawCollection: RawCollection,
@@ -35,7 +36,10 @@ export const indexEvents = (
         submissionsPromise
     ])
         .then(([events, submissions]) => toEventsRecord(events, submissions))
-        .then(events => eventsIndex.addObjects(events))
+        .then(events => {
+            return clearIndex(eventsIndex)
+                .then(() => eventsIndex.addObjects(events))
+        })
 }
 
 type IndexableSubmission = WithId<SubmissionData> & { speakersNames: string[] }

@@ -29,7 +29,7 @@ export = {
     generateSchedule: https.onRequest(httpTrigger(generateSchedule(firebaseApp, rawCollection))),
     generateSpeakers: https.onRequest(httpTrigger(generateSpeakers(firebaseApp, rawCollection))),
     generateTracks: https.onRequest(httpTrigger(generateTracks(firebaseApp, rawCollection))),
-    indexContent: https.onRequest(indexContent(rawCollection, algoliaConf)),
+    indexContent: https.onRequest(httpTrigger(indexContent(rawCollection, algoliaConf))),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
 }
