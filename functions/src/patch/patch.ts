@@ -57,8 +57,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
 
         Promise.all(Object.keys(failuresPromise).map(it => failuresPromise[it]))
             .then(failures => {
-                const failed = Object.keys(failures)
-                    .some(it => it.length > 0)
+                const failed = failures.some(it => it.length > 0)
 
                 if (failed) {
                     res.status(400).json({
