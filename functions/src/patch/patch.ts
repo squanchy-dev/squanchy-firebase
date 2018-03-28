@@ -4,6 +4,7 @@ import { mapFields } from './map-fields'
 import { mapObject } from '../objects'
 import { squanchyValidators } from './squanchy-validators'
 import { ensureNotEmpty } from '../strings'
+import { awaitObject } from '../promise'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     ensureNotEmpty(config.vendor_name, 'config.vendor_name')
