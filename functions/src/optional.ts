@@ -11,7 +11,7 @@ export function or<T>(it: Optional<T>, other: T): T {
 }
 
 export function map<T, R>(it: Optional<T>, fn: (t: T) => R = identity): R | null {
-    if (it) {
+    if (present(it)) {
         return fn(it)
     } else {
         return null
