@@ -5,29 +5,14 @@ import { mapObject } from '../objects'
 import { squanchyValidators } from './squanchy-validators'
 import { ensureNotEmpty } from '../strings'
 import { awaitObject } from '../promise'
+import { authorize } from './authorize'
 
 const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     ensureNotEmpty(config.vendor_name, 'config.vendor_name')
 
     const expressApp = express()
 
-    expressApp.use((req, res, next) => {
-        const authorization = req.headers.authorization as string
-
-        if (!authorization || !authorization.startsWith('Bearer ')) {
-            res.status(403).send('Unauthorized')
-            return
-        }
-
-        const token = authorization.substr('Bearer '.length)
-
-        if (token !== config.app_token) {
-            res.status(403).send('Unauthorized')
-            return
-        }
-
-        return next()
-    })
+    expressApp.use(authorize(config.app_token))
 
     expressApp.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
