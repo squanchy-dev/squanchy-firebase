@@ -1,7 +1,7 @@
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import {
-    EventData,
+    TalkData,
     LevelData,
     PlaceData,
     SpeakerData,
@@ -9,14 +9,14 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { Speaker, Track } from './event-details-view-data'
+import { Speaker, Track, Event } from './event-details-view-data'
 import { map } from '../optional'
 
 export const generateEventDetails = (
     firebaseApp: FirebaseApp, rawCollection: RawCollection
 ) => () => {
     const firestore = firebaseApp.firestore()
-    const eventsPromise = rawCollection<EventData>('events')
+    const talksPromise = rawCollection<TalkData>('talks')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
     const placesPromise = rawCollection<PlaceData>('places')
     const tracksPromise = rawCollection<TrackData>('tracks')
@@ -25,7 +25,7 @@ export const generateEventDetails = (
     const levelsPromise = rawCollection<LevelData>('levels')
 
     return Promise.all([
-        eventsPromise,
+        talksPromise,
         submissionsPromise,
         placesPromise,
         tracksPromise,
@@ -33,7 +33,7 @@ export const generateEventDetails = (
         usersPromise,
         levelsPromise
     ]).then(([
-        events,
+        talks,
         submissions,
         places,
         tracks,
@@ -55,34 +55,34 @@ export const generateEventDetails = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        return events.map(event => {
-            const submission = submissions.find(({ id }) => event.submission.id === id)!
-            const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
-            const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
+        return talks.map(talk => {
+            const submission = submissions.find(({ id }) => talk.submission.id === id)!
+            const place = map(talk.place, it => places.find(({ id }) => it.id === id) || null)
+            const track = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
             const submissionLevel = submission.level
 
             const level = submissionLevel
                 ? levels.find(({ id }) => submissionLevel.id === id)!.name
                 : null
 
-            const eventSpeakers = (submission.speakers || [])
+            const talkSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
 
             return {
                 description: submission.abstract,
-                endTime: event.end_time,
+                endTime: talk.end_time,
                 experienceLevel: level,
-                id: event.id,
+                id: talk.id,
                 place,
                 // TODO remove filter when data is valid again
-                speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
-                startTime: event.start_time,
+                speakers: talkSpeakers.filter(it => it !== undefined && it !== null),
+                startTime: talk.start_time,
                 title: submission.title,
                 track: trackFrom(track),
-                type: event.type || 'talk',
+                type: talk.type || 'talk',
             }
         })
-    }).then(events => {
+    }).then((events: Event[]) => {
         const batch = firestore.batch()
 
         const eventDetails = firestore.collection('views')

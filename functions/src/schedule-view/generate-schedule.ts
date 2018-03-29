@@ -2,7 +2,7 @@ import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import {
     DayData,
-    EventData,
+    TalkData,
     LevelData,
     PlaceData,
     SpeakerData,
@@ -10,7 +10,7 @@ import {
     TrackData,
     UserData,
 } from '../firestore/data'
-import { Speaker, Track } from './schedule-view-data'
+import { Speaker, Track, SchedulePage } from './schedule-view-data'
 import { map } from '../optional'
 
 export const generateSchedule = (
@@ -20,7 +20,7 @@ export const generateSchedule = (
     const firestore = firebaseApp.firestore()
 
     const daysPromise = rawCollection<DayData>('days')
-    const eventsPromise = rawCollection<EventData>('events')
+    const talksPromise = rawCollection<TalkData>('talks')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
     const placesPromise = rawCollection<PlaceData>('places')
     const tracksPromise = rawCollection<TrackData>('tracks')
@@ -30,7 +30,7 @@ export const generateSchedule = (
 
     return Promise.all([
         daysPromise,
-        eventsPromise,
+        talksPromise,
         submissionsPromise,
         placesPromise,
         tracksPromise,
@@ -39,7 +39,7 @@ export const generateSchedule = (
         levelsPromise
     ]).then(([
         days,
-        events,
+        talks,
         submissions,
         places,
         tracks,
@@ -62,13 +62,13 @@ export const generateSchedule = (
         }))
 
         return days.map(day => {
-            const eventsOfTheDay = events.filter(event => event.day.id === day.id)
+            const talksOfTheDay = talks.filter(talk => talk.day.id === day.id)
             return {
                 day,
-                events: eventsOfTheDay.map(event => {
-                    const submission = submissions.find(({ id }) => event.submission.id === id)!
-                    const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
-                    const track = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
+                events: talksOfTheDay.map(talk => {
+                    const submission = submissions.find(({ id }) => talk.submission.id === id)!
+                    const place = map(talk.place, it => places.find(({ id }) => it.id === id) || null)
+                    const track = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
                     const submissionLevel = submission.level
 
                     const level = submissionLevel
@@ -80,21 +80,21 @@ export const generateSchedule = (
 
                     return {
                         description: submission.abstract,
-                        endTime: event.end_time,
+                        endTime: talk.end_time,
                         experienceLevel: level,
-                        id: event.id,
+                        id: talk.id,
                         place,
                         // TODO remove filter when data is valid again
                         speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
-                        startTime: event.start_time,
+                        startTime: talk.start_time,
                         title: submission.title,
                         track: trackFrom(track),
-                        type: event.type || 'talk',
+                        type: talk.type || 'talk',
                     }
                 })
             }
         })
-    }).then(schedulePages => {
+    }).then((schedulePages: SchedulePage[]) => {
         const schedulePagesCollection = firestore.collection('views')
             .doc('schedule')
             .collection('schedule_pages')
