@@ -10,7 +10,7 @@ import {
     UserData,
 } from '../firestore/data'
 import { Speaker, Track, Event } from './event-details-view-data'
-import { map } from '../optional'
+import { map, or, Optional, present } from '../optional'
 
 export const generateEventDetails = (
     firebaseApp: FirebaseApp, rawCollection: RawCollection
@@ -58,7 +58,7 @@ export const generateEventDetails = (
         return talks.map(talk => {
             const submission = submissions.find(({ id }) => talk.submission.id === id)!
             const place = map(talk.place, it => places.find(({ id }) => it.id === id) || null)
-            const track = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
+            const trackData = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
             const submissionLevel = submission.level
 
             const level = submissionLevel
@@ -67,6 +67,9 @@ export const generateEventDetails = (
 
             const talkSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
+
+            const track = map(trackData, trackFrom)
+            const type = typeFrom(talk.type, track)
 
             return {
                 description: submission.abstract,
@@ -78,8 +81,8 @@ export const generateEventDetails = (
                 speakers: talkSpeakers.filter(it => it !== undefined && it !== null),
                 startTime: talk.start_time,
                 title: submission.title,
-                track: trackFrom(track),
-                type: talk.type || 'talk',
+                track,
+                type,
             }
         })
     }).then((events: Event[]) => {
@@ -102,15 +105,24 @@ export const generateEventDetails = (
     })
 }
 
-const trackFrom = (rawTrack: WithId<TrackData> | null): Track | null => {
-    if (rawTrack === null) {
-        return null
+const trackFrom = (rawTrack: WithId<TrackData>): Track => ({
+    accentColor: rawTrack.accent_color,
+    iconUrl: rawTrack.icon_url,
+    id: rawTrack.id,
+    name: rawTrack.name,
+    textColor: rawTrack.text_color,
+})
+
+const typeFrom = (talkType: Optional<string>, track: Track | null) => {
+    const type = or(talkType, 'talk')
+
+    if (type !== 'talk') {
+        return type
     }
-    return {
-        accentColor: rawTrack.accent_color,
-        iconUrl: rawTrack.icon_url,
-        id: rawTrack.id,
-        name: rawTrack.name,
-        textColor: rawTrack.text_color,
+
+    if (present(track) && track.name.toLowerCase() === 'keynote') {
+        return 'keynote'
     }
+
+    return type
 }

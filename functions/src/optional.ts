@@ -6,8 +6,12 @@ export function present<T>(optional: Optional<T>): optional is T {
 
 const identity = (a: any) => a
 
-export function map<T, R>(it: T | null | undefined, fn: (t: T) => R = identity): R | null {
-    if (it) {
+export function or<T>(it: Optional<T>, other: T): T {
+    return (present(it)) ? it : other
+}
+
+export function map<T, R>(it: Optional<T>, fn: (t: T) => R = identity): R | null {
+    if (present(it)) {
         return fn(it)
     } else {
         return null
