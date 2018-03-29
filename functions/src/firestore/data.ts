@@ -29,7 +29,6 @@ export interface OtherEventData {
     readonly end_time: Date
     readonly place: Optional<Reference<PlaceData>>
     readonly start_time: Date
-    readonly track: Optional<Reference<TrackData>>
     readonly type: Optional<string>
 }
 

@@ -31,7 +31,6 @@ export const squanchyValidators: CollectionsValidator = {
         place: [isReference],
         start_time: [required, isDate],
         title: [required, isString],
-        track: [isReference],
         type: [required, isString]
     },
     places: {
