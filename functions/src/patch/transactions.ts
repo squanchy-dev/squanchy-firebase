@@ -16,7 +16,7 @@ export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
 
     expressApp.use(authorize(config.app_token))
 
-    expressApp.get('*', (req, res) => {
+    expressApp.post('*', (req, res) => {
         httpTrigger(
             () => firebaseApp.firestore()
                 .collection('raw_data')
@@ -38,7 +38,7 @@ export const endPatch = (
 
     expressApp.use(authorize(config.app_token))
 
-    expressApp.get('*', (req, res) => {
+    expressApp.post('*', (req, res) => {
         httpTrigger(() => Promise.all([
             generateSchedule(firebaseApp, collection)(),
             generateEventDetails(firebaseApp, collection)(),
