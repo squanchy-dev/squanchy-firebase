@@ -1,7 +1,7 @@
 import { AlgoliaClient } from 'algoliasearch'
 
 import { WithId, RawCollection } from '../firestore/collection'
-import { EventData, SubmissionData } from '../firestore/data'
+import { TalkData, SubmissionData } from '../firestore/data'
 import { EventRecord } from './records'
 import { clearIndex } from './clear-index'
 
@@ -12,7 +12,7 @@ export const indexEvents = (
 ): Promise<void> => {
     const eventsIndex = algolia.initIndex(`${indexPrefix}-events`)
 
-    const eventsPromise = rawCollection<EventData>('events')
+    const talksPromise = rawCollection<TalkData>('talks')
     const submissionsPromise = rawCollection<SubmissionData>('submissions')
         .then(submissions => {
             return Promise.all(submissions.map(submission =>
@@ -32,10 +32,10 @@ export const indexEvents = (
         })
 
     return Promise.all([
-        eventsPromise,
+        talksPromise,
         submissionsPromise
     ])
-        .then(([events, submissions]) => toEventsRecord(events, submissions))
+        .then(([talks, submissions]) => toEventsRecord(talks, submissions))
         .then(events => {
             return clearIndex(eventsIndex)
                 .then(() => eventsIndex.addObjects(events))
@@ -44,14 +44,14 @@ export const indexEvents = (
 
 type IndexableSubmission = WithId<SubmissionData> & { speakersNames: string[] }
 
-const toEventsRecord = (events: WithId<EventData>[], submissions: IndexableSubmission[]): EventRecord[] => {
-    return events
+const toEventsRecord = (talks: WithId<TalkData>[], submissions: IndexableSubmission[]): EventRecord[] => {
+    return talks
         .filter(it => it.type === 'talk' || it.type === 'keynote')
-        .map(event => {
-            const submission = submissions.find(it => it.id === event.submission.id)!!
+        .map(talk => {
+            const submission = submissions.find(it => it.id === talk.submission.id)!!
             return {
                 description: submission.abstract,
-                objectID: event.id,
+                objectID: talk.id,
                 speakers: submission.speakersNames,
                 title: submission.title,
             }

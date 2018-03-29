@@ -22,17 +22,16 @@ export const squanchyValidators: CollectionsValidator = {
         date: [required, isDate],
         position: [required, isInteger],
     },
-    events: {
+    levels: {
+        name: [required, isString]
+    },
+    other_events: {
         day: [required, isReference],
         end_time: [required, isDate],
         place: [isReference],
         start_time: [required, isDate],
-        submission: [isReference], // TODO required if type == talk || type == keynote
-        track: [isReference], // TODO required if type == talk
+        title: [required, isString],
         type: [required, isString]
-    },
-    levels: {
-        name: [required, isString]
     },
     places: {
         floor: [isString],
@@ -60,6 +59,15 @@ export const squanchyValidators: CollectionsValidator = {
         notes: [isString],
         speakers: [required, isArray([required, isReference])],
         title: [required, isString]
+    },
+    talks: {
+        day: [required, isReference],
+        end_time: [required, isDate],
+        place: [isReference],
+        start_time: [required, isDate],
+        submission: [required, isReference],
+        track: [required, isReference],
+        type: [required, isString]
     },
     tracks: {
         accent_color: [isString],
