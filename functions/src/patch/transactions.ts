@@ -18,10 +18,26 @@ export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
 
     expressApp.post('*', (req, res) => {
         httpTrigger(
-            () => firebaseApp.firestore()
-                .collection('raw_data')
-                .doc(config.vendor_name)
-                .delete()
+            () => {
+                const firestore = firebaseApp.firestore()
+
+                return firestore
+                    .collection('raw_data')
+                    .doc(config.vendor_name)
+                    .getCollections()
+                    .then(collections => {
+                        return Promise.all(collections.map(collection => {
+                            return collection.get()
+                                .then(snapshot => {
+                                    const batch = firestore.batch()
+
+                                    snapshot.docs.forEach(doc => batch.delete(doc.ref))
+
+                                    return batch.commit()
+                                })
+                        }))
+                    })
+            }
         )(req, res)
     })
 
