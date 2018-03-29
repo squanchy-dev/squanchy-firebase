@@ -65,8 +65,8 @@ export const squanchyValidators: CollectionsValidator = {
         end_time: [required, isDate],
         place: [isReference],
         start_time: [required, isDate],
-        submission: [required, isReference], // TODO required if type == talk || type == keynote
-        track: [isReference], // TODO required if type == talk
+        submission: [required, isReference],
+        track: [required, isReference],
         type: [required, isString]
     },
     tracks: {
