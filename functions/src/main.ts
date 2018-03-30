@@ -12,6 +12,7 @@ import { generateTracks } from './tracks-view/generate-tracks'
 import { fetchTwitter } from './twitter/fetch-twitter'
 import { firestoreRawCollection } from './firestore/collection'
 import { httpTrigger } from './http/http-trigger'
+import { startPatch, endPatch } from './patch/transactions'
 
 const {
     algolia: algoliaConf,
@@ -32,4 +33,6 @@ export = {
     indexContent: https.onRequest(httpTrigger(indexContent(rawCollection, algoliaConf))),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
+    startPatch: https.onRequest(startPatch(firebaseApp, patchConf)),
+    endPatch: https.onRequest(endPatch(firebaseApp, rawCollection, patchConf, algoliaConf))
 }

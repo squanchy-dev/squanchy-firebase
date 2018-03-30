@@ -8,6 +8,7 @@
         "arrow-parens": [true, "ban-single-arg-parens"],
         "no-console": [false],
         "array-type": [true, "array"],
-        "ordered-imports": [false]
+        "ordered-imports": [false],
+        "object-literal-sort-keys": [false]
     }
 }
