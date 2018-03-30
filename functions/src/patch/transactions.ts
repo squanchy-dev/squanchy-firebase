@@ -20,13 +20,14 @@ export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         httpTrigger(
             () => {
                 const firestore = firebaseApp.firestore()
-
+                const allowed: string[] = req.body.collections || []
                 return firestore
                     .collection('raw_data')
                     .doc(config.vendor_name)
                     .getCollections()
                     .then(collections => {
-                        return Promise.all(collections.map(collection => {
+                        const allowedCollections = collections.filter(it => allowed.indexOf(it.id) !== -1)
+                        return Promise.all(allowedCollections.map(collection => {
                             return collection.get()
                                 .then(snapshot => {
                                     const batch = firestore.batch()
