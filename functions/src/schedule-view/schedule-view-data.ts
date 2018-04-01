@@ -1,5 +1,3 @@
-type Optional<T> = T | null
-
 export interface Schedule {
     pages: SchedulePage[]
 }
@@ -19,35 +17,35 @@ export interface Event {
     title: string
     startTime: Date
     endTime: Date
-    place: Optional<Place>
-    track: Optional<Track>
+    place: Place | null
+    track: Track | null
     speakers: Speaker[]
-    experienceLevel: Optional<string>
+    experienceLevel: string | null
     type: string
-    description: Optional<string>
+    description: string | null
 }
 
 export interface Place {
     id: string
     name: string
-    floor: Optional<string>
+    floor: string | null
 }
 
 export interface Track {
     id: string
     name: string
-    accentColor: Optional<string>
-    textColor: Optional<string>
-    iconUrl: Optional<string>
+    accentColor: string | null
+    textColor: string | null
+    iconUrl: string | null
 }
 
 export interface Speaker {
     id: string
     name: string
     bio: string
-    companyName: Optional<string>
-    companyUrl: Optional<string>
-    personalUrl: Optional<string>
-    photoUrl: Optional<string>
-    twitterUsername: Optional<string>
+    companyName: string | null
+    companyUrl: string | null
+    personalUrl: string | null
+    photoUrl: string | null
+    twitterUsername: string | null
 }
