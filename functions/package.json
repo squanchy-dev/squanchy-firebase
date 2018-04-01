@@ -2,7 +2,7 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "prebuild": "rm -r dist",
+    "prebuild": "rm -rf dist",
     "build": "tsc --outDir dist",
     "predeploy": "npm run-script build",
     "deploy": "firebase deploy --only functions",
