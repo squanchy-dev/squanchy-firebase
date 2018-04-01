@@ -2,17 +2,18 @@
   "name": "functions",
   "description": "Cloud Functions for Firebase",
   "scripts": {
-    "build": "gulp build",
+    "prebuild": "rm -r dist",
+    "build": "tsc --outDir dist",
     "predeploy": "npm run-script build",
     "deploy": "firebase deploy --only functions",
     "test": "jest",
     "lint": "tslint -p tsconfig.json"
   },
   "dependencies": {
+    "@firebase/app-types": "^0.1.1",
     "@types/algoliasearch": "^3.24.9",
     "@types/node-fetch": "^1.6.7",
     "algoliasearch": "^3.24.11",
-    "@firebase/app-types": "^0.1.1",
     "express": "^4.16.2",
     "firebase-admin": "^5.8.1",
     "firebase-functions": "^0.8.1",
@@ -22,8 +23,6 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^22.1.0",
-    "gulp": "^3.9.1",
-    "gulp-typescript": "^3.2.2",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.1",
     "tslint": "^5.9.1",
