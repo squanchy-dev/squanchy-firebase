@@ -8,6 +8,7 @@ import {
     SubmissionData,
     TrackData,
     UserData,
+    OtherEventData,
 } from '../firestore/data'
 import { Speaker, Track, Event } from './event-details-view-data'
 import { map, or, Optional, present } from '../optional'
@@ -23,6 +24,7 @@ export const generateEventDetails = (
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
+    const otherEventsPromise = rawCollection<OtherEventData>('other_event')
 
     return Promise.all([
         talksPromise,
@@ -31,7 +33,8 @@ export const generateEventDetails = (
         tracksPromise,
         speakersPromise,
         usersPromise,
-        levelsPromise
+        levelsPromise,
+        otherEventsPromise
     ]).then(([
         talks,
         submissions,
@@ -39,7 +42,8 @@ export const generateEventDetails = (
         tracks,
         speakers,
         users,
-        levels
+        levels,
+        otherEvents
     ]) => {
         const flattenedSpeakers = speakers.map(speaker => ({
             speaker,
@@ -55,34 +59,51 @@ export const generateEventDetails = (
             twitterUsername: speaker.twitter_handle,
         }))
 
-        return talks.map(talk => {
-            const submission = submissions.find(({ id }) => talk.submission.id === id)!
-            const place = map(talk.place, it => places.find(({ id }) => it.id === id) || null)
-            const trackData = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
-            const submissionLevel = submission.level
+        type AnyEvent = (WithId<OtherEventData> | WithId<TalkData>)
 
-            const level = submissionLevel
-                ? levels.find(({ id }) => submissionLevel.id === id)!.name
-                : null
+        const isTalk = (anyEvent: AnyEvent): anyEvent is WithId<TalkData> =>
+            (anyEvent as TalkData).submission !== undefined
 
-            const talkSpeakers = (submission.speakers || [])
-                .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
+        const allEvents: AnyEvent[] = [...talks, ...otherEvents]
 
-            const track = map(trackData, trackFrom)
-            const type = typeFrom(talk.type, track)
+        return allEvents.map(anyEvent => {
+            const place = map(anyEvent.place, it => places.find(({ id }) => it.id === id) || null)
 
-            return {
-                description: submission.abstract,
-                endTime: talk.end_time,
-                experienceLevel: level,
-                id: talk.id,
+            const baseEvent = {
+                endTime: anyEvent.end_time,
+                id: anyEvent.id,
                 place,
-                // TODO remove filter when data is valid again
-                speakers: talkSpeakers.filter(it => it !== undefined && it !== null),
-                startTime: talk.start_time,
-                title: submission.title,
-                track,
-                type,
+                startTime: anyEvent.start_time
+            }
+
+            if (isTalk(anyEvent)) {
+                const submission = submissions.find(({ id }) => anyEvent.submission.id === id)!
+                const submissionLevel = submission.level
+                const level = submissionLevel
+                    ? levels.find(({ id }) => submissionLevel.id === id)!.name
+                    : null
+                const talkSpeakers = (submission.speakers || [])
+                    .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
+                const trackData = map(anyEvent.track, it => tracks.find(({ id }) => it.id === id) || null)
+                const track = map(trackData, trackFrom)
+                const type = typeFrom(anyEvent.type, track)
+
+                return {
+                    ...baseEvent,
+                    submission,
+                    description: submission.abstract,
+                    experienceLevel: level,
+                    speakers: talkSpeakers.filter(it => it !== undefined && it !== null),
+                    title: submission.title,
+                    track,
+                    type
+                }
+            } else {
+                return {
+                    ...baseEvent,
+                    title: anyEvent.title,
+                    type: anyEvent.type
+                }
             }
         })
     }).then((events: Event[]) => {

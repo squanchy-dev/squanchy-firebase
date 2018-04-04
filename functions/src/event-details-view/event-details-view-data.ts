@@ -1,15 +1,14 @@
-
 export interface Event {
     id: string
     title: string
     startTime: Date
     endTime: Date
     place: Place | null
-    track: Track | null
-    speakers: Speaker[]
-    experienceLevel: string | null
     type: string
-    description: string | null
+    track?: Track | null
+    speakers?: Speaker[]
+    experienceLevel?: string | null
+    description?: string | null
 }
 
 export interface Place {
