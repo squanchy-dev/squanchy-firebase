@@ -1,5 +1,5 @@
 import { FirebaseApp } from '../firebase'
-import { WithId, RawCollection } from '../firestore/collection'
+import { RawCollection } from '../firestore/collection'
 import {
     DayData,
     TalkData,
@@ -9,9 +9,10 @@ import {
     SubmissionData,
     TrackData,
     UserData,
+    OtherEventData,
 } from '../firestore/data'
-import { Speaker, Track, SchedulePage } from './schedule-view-data'
-import { map, or, Optional, present } from '../optional'
+import { SchedulePage } from './schedule-view-data'
+import { flattenSpeakers, toEvents } from '../event-details-view/generate-event-details'
 
 export const generateSchedule = (
     firebaseApp: FirebaseApp,
@@ -27,6 +28,7 @@ export const generateSchedule = (
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
+    const otherEventsPromise = rawCollection<OtherEventData>('other_event')
 
     return Promise.all([
         daysPromise,
@@ -36,7 +38,8 @@ export const generateSchedule = (
         tracksPromise,
         speakersPromise,
         usersPromise,
-        levelsPromise
+        levelsPromise,
+        otherEventsPromise
     ]).then(([
         days,
         talks,
@@ -45,55 +48,26 @@ export const generateSchedule = (
         tracks,
         speakers,
         users,
-        levels
+        levels,
+        otherEvents
     ]) => {
-        const flattenedSpeakers = speakers.map(speaker => ({
-            speaker,
-            user: users.find(({ id }) => speaker.user_profile.id === id)!
-        })).map(({ speaker, user }): Speaker => ({
-            bio: speaker.bio,
-            companyName: map(speaker.company_name),
-            companyUrl: map(speaker.company_url),
-            id: speaker.id,
-            name: user.full_name,
-            personalUrl: map(speaker.personal_url),
-            photoUrl: user.profile_pic,
-            twitterUsername: speaker.twitter_handle,
-        }))
+        const flattenedSpeakers = flattenSpeakers(speakers, users)
 
         return days.map(day => {
             const talksOfTheDay = talks.filter(talk => talk.day.id === day.id)
+            const events = toEvents(
+                talksOfTheDay,
+                otherEvents,
+                places,
+                submissions,
+                levels,
+                flattenedSpeakers,
+                tracks
+            )
+
             return {
                 day,
-                events: talksOfTheDay.map(talk => {
-                    const submission = submissions.find(({ id }) => talk.submission.id === id)!
-                    const place = map(talk.place, it => places.find(({ id }) => it.id === id) || null)
-                    const trackData = map(talk.track, it => tracks.find(({ id }) => it.id === id) || null)
-                    const submissionLevel = submission.level
-
-                    const level = submissionLevel
-                        ? levels.find(({ id }) => submissionLevel.id === id)!.name
-                        : null
-
-                    const eventSpeakers = (submission.speakers || [])
-                        .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
-
-                    const track = map(trackData, trackFrom)
-                    const type = typeFrom(talk.type, track)
-                    return {
-                        description: submission.abstract,
-                        endTime: talk.end_time,
-                        experienceLevel: level,
-                        id: talk.id,
-                        place,
-                        // TODO remove filter when data is valid again
-                        speakers: eventSpeakers.filter(it => it !== undefined && it !== null),
-                        startTime: talk.start_time,
-                        title: submission.title,
-                        track,
-                        type,
-                    }
-                })
+                events
             }
         })
     }).then((schedulePages: SchedulePage[]) => {
@@ -114,26 +88,4 @@ export const generateSchedule = (
             return batch.commit()
         })
     })
-}
-
-const trackFrom = (rawTrack: WithId<TrackData>): Track => ({
-    accentColor: rawTrack.accent_color,
-    iconUrl: rawTrack.icon_url,
-    id: rawTrack.id,
-    name: rawTrack.name,
-    textColor: rawTrack.text_color,
-})
-
-const typeFrom = (talkType: Optional<string>, track: Track | null) => {
-    const type = or(talkType, 'talk')
-
-    if (type !== 'talk') {
-        return type
-    }
-
-    if (present(track) && track.name.toLowerCase() === 'keynote') {
-        return 'keynote'
-    }
-
-    return type
 }
