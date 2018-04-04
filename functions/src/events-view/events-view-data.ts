@@ -1,3 +1,17 @@
+export interface Schedule {
+    pages: SchedulePage[]
+}
+
+export interface SchedulePage {
+    day: Day
+    events: Event[]
+}
+
+export interface Day {
+    id: string
+    date: Date
+}
+
 export interface Event {
     id: string
     title: string

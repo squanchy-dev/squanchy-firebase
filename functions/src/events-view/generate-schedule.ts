@@ -11,8 +11,8 @@ import {
     UserData,
     OtherEventData,
 } from '../firestore/data'
-import { SchedulePage } from './schedule-view-data'
-import { flattenSpeakers, toEvents } from '../event-details-view/generate-event-details'
+import { SchedulePage } from './events-view-data'
+import { flattenSpeakers, toEvents } from './mapping-functions'
 
 export const generateSchedule = (
     firebaseApp: FirebaseApp,
