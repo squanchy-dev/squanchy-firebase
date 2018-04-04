@@ -28,7 +28,7 @@ export const generateSchedule = (
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const usersPromise = rawCollection<UserData>('user_profiles')
     const levelsPromise = rawCollection<LevelData>('levels')
-    const otherEventsPromise = rawCollection<OtherEventData>('other_event')
+    const otherEventsPromise = rawCollection<OtherEventData>('other_events')
 
     return Promise.all([
         daysPromise,
