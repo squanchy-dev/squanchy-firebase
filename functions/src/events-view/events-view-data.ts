@@ -1,3 +1,16 @@
+export interface Schedule {
+    pages: SchedulePage[]
+}
+
+export interface SchedulePage {
+    day: Day
+    events: Event[]
+}
+
+export interface Day {
+    id: string
+    date: Date
+}
 
 export interface Event {
     id: string
@@ -5,11 +18,11 @@ export interface Event {
     startTime: Date
     endTime: Date
     place: Place | null
-    track: Track | null
-    speakers: Speaker[]
-    experienceLevel: string | null
     type: string
-    description: string | null
+    track?: Track | null
+    speakers?: Speaker[]
+    experienceLevel?: string | null
+    description?: string | null
 }
 
 export interface Place {
