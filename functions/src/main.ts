@@ -16,12 +16,11 @@ import { startPatch, endPatch } from './patch/transactions'
 
 const {
     algolia: algoliaConf,
-    firebase: firebaseConf,
     patch: patchConf,
     twitter: twitterConf
 } = config()
 
-const firebaseApp = initializeApp(firebaseConf)
+const firebaseApp = initializeApp()
 const rawCollection = firestoreRawCollection(patchConf.vendor_name, firebaseApp)
 
 export = {
