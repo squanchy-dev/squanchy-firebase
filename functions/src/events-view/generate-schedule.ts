@@ -55,9 +55,10 @@ export const generateSchedule = (
 
         return days.map(day => {
             const talksOfTheDay = talks.filter(talk => talk.day.id === day.id)
+            const otherEventsOfTheDay = otherEvents.filter(otherEvent => otherEvent.day.id === day.id)
             const events = toEvents(
                 talksOfTheDay,
-                otherEvents,
+                otherEventsOfTheDay,
                 places,
                 submissions,
                 levels,
