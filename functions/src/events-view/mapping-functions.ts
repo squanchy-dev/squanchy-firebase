@@ -10,6 +10,7 @@ import {
     UserData,
     OtherEventData,
     PlaceDataWithNumericPosition,
+    PlaceData,
 } from '../firestore/data'
 
 export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<UserData>[]): Speaker[] => {
@@ -107,3 +108,13 @@ const typeFrom = (talkType: Optional<string>, track: Track | null) => {
 
     return type
 }
+
+export const convertPlaceDataToPlaceDataWithNumericPosition =
+    (places: WithId<PlaceData>[]): WithId<PlaceDataWithNumericPosition>[] => {
+        // TS is really unhappy if I inline this function in the map()
+        const convertToNumericPosition = (place: WithId<PlaceData>): WithId<PlaceDataWithNumericPosition> => {
+            return { ...place, position: Number(place.position) }
+        }
+
+        return places.map(convertToNumericPosition)
+    }

@@ -8,9 +8,9 @@ import {
     SubmissionData,
     TrackData,
     UserData,
-    OtherEventData,
+    OtherEventData
 } from '../firestore/data'
-import { flattenSpeakers, toEvents } from './mapping-functions'
+import { flattenSpeakers, toEvents, convertPlaceDataToPlaceDataWithNumericPosition } from './mapping-functions'
 import { Event } from './events-view-data'
 
 export const generateEventDetails = (
@@ -50,7 +50,7 @@ export const generateEventDetails = (
         return toEvents(
             talks,
             otherEvents,
-            places,
+            convertPlaceDataToPlaceDataWithNumericPosition(places),
             submissions,
             levels,
             flattenedSpeakers,
