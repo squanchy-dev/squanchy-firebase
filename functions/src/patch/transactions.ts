@@ -20,7 +20,7 @@ export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         httpTrigger(
             () => {
                 const firestore = firebaseApp.firestore()
-                const allowed: string[] = req.body.collections || []
+                const allowed: string[] = req.body.collections || req.body.collection || []
                 return firestore
                     .collection('raw_data')
                     .doc(config.vendor_name)
