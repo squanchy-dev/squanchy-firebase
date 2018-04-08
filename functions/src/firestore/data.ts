@@ -50,6 +50,13 @@ export interface DayData {
 export interface PlaceData {
     readonly floor: string
     readonly name: string
+    readonly position: string
+}
+
+export interface PlaceDataWithNumericPosition {
+    readonly floor: string
+    readonly name: string
+    readonly position: number
 }
 
 export interface SubmissionData {

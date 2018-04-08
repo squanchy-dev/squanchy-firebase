@@ -1,5 +1,5 @@
 import { FirebaseApp } from '../firebase'
-import { RawCollection } from '../firestore/collection'
+import { RawCollection, WithId } from '../firestore/collection'
 import {
     DayData,
     TalkData,
@@ -10,6 +10,7 @@ import {
     TrackData,
     UserData,
     OtherEventData,
+    PlaceDataWithNumericPosition,
 } from '../firestore/data'
 import { SchedulePage } from './events-view-data'
 import { flattenSpeakers, toEvents } from './mapping-functions'
@@ -59,7 +60,7 @@ export const generateSchedule = (
             const events = toEvents(
                 talksOfTheDay,
                 otherEventsOfTheDay,
-                places,
+                convertPositionToNumber(places),
                 submissions,
                 levels,
                 flattenedSpeakers,
@@ -89,4 +90,13 @@ export const generateSchedule = (
             return batch.commit()
         })
     })
+}
+
+const convertPositionToNumber = (places: WithId<PlaceData>[]): WithId<PlaceDataWithNumericPosition>[] => {
+    // TS is really unhappy if I inline this function in the map()
+    const convertToNumericPosition = (place: WithId<PlaceData>): WithId<PlaceDataWithNumericPosition> => {
+        return { ...place, position: Number(place.position) }
+    }
+
+    return places.map(convertToNumericPosition)
 }

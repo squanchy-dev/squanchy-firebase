@@ -4,12 +4,12 @@ import { WithId } from '../firestore/collection'
 import {
     TalkData,
     LevelData,
-    PlaceData,
     SpeakerData,
     SubmissionData,
     TrackData,
     UserData,
     OtherEventData,
+    PlaceDataWithNumericPosition,
 } from '../firestore/data'
 
 export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<UserData>[]): Speaker[] => {
@@ -31,7 +31,7 @@ export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<U
 export const toEvents = (
     talks: WithId<TalkData>[],
     otherEvents: WithId<OtherEventData>[],
-    places: WithId<PlaceData>[],
+    places: WithId<PlaceDataWithNumericPosition>[],
     submissions: WithId<SubmissionData>[],
     levels: WithId<LevelData>[],
     flattenedSpeakers: Speaker[],
@@ -39,27 +39,27 @@ export const toEvents = (
 ): Event[] => {
     const allEvents: AnyEvent[] = [...talks, ...otherEvents]
 
-    return allEvents.map(anyEvent => {
-        const place = map(anyEvent.place, it => places.find(({ id }) => it.id === id) || null)
+    return allEvents.map(event => {
+        const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
 
         const baseEvent = {
-            endTime: anyEvent.end_time,
-            id: anyEvent.id,
+            endTime: event.end_time,
+            id: event.id,
             place,
-            startTime: anyEvent.start_time
+            startTime: event.start_time
         }
 
-        if (isTalk(anyEvent)) {
-            const submission = submissions.find(({ id }) => anyEvent.submission.id === id)!
+        if (isTalk(event)) {
+            const submission = submissions.find(({ id }) => event.submission.id === id)!
             const submissionLevel = submission.level
             const level = submissionLevel
                 ? levels.find(({ id }) => submissionLevel.id === id)!.name
                 : null
             const talkSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
-            const trackData = map(anyEvent.track, it => tracks.find(({ id }) => it.id === id) || null)
+            const trackData = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
             const track = map(trackData, trackFrom)
-            const type = typeFrom(anyEvent.type, track)
+            const type = typeFrom(event.type, track)
 
             return {
                 ...baseEvent,
@@ -74,8 +74,8 @@ export const toEvents = (
         } else {
             return {
                 ...baseEvent,
-                title: anyEvent.title,
-                type: anyEvent.type
+                title: event.title,
+                type: event.type
             }
         }
     })
