@@ -1,6 +1,6 @@
 import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
-import { SpeakerData, UserData } from '../firestore/data'
+import { SpeakerData, UserData, SubmissionData, TalkData } from '../firestore/data'
 import { SpeakerPage } from './speakers-view-data'
 
 export const generateSpeakers = (
@@ -11,11 +11,13 @@ export const generateSpeakers = (
 
     const speakersPromise = rawCollection<SpeakerData>('speakers')
     const usersPromise = rawCollection<UserData>('user_profiles')
+    const submissionsPromise = rawCollection<SubmissionData>('submissions')
+    const talksPromise = rawCollection<TalkData>('talks')
 
-    return Promise.all([
-        speakersPromise,
-        usersPromise
-    ])
+    return Promise.all([speakersPromise, usersPromise, submissionsPromise, talksPromise])
+        .then(([speakers, users, submissions, talks]) => {
+            return filterOutSpeakersWithNoTalks(speakers, users, submissions, talks)
+        })
         .then(([speakers, users]) => speakers.map(asSpeakerPage(users)))
         .then(speakerPages => {
             const batch = firestore.batch()
@@ -33,6 +35,25 @@ export const generateSpeakers = (
                 return batch.commit()
             })
         })
+}
+
+const filterOutSpeakersWithNoTalks = (
+    speakers: WithId<SpeakerData>[],
+    userProfiles: WithId<UserData>[],
+    submissions: WithId<SubmissionData>[],
+    talks: WithId<TalkData>[]
+): [WithId<SpeakerData>[], WithId<UserData>[]] => {
+    const talkSubmissions = submissions.filter(submission => {
+        return talks.some(talk => talk.submission.id === submission.id)
+    })
+
+    const speakersWithTalks = speakers.filter(speaker => {
+        return talkSubmissions.some(submission => {
+            return submission.speakers.some(submissionSpeaker => submissionSpeaker.id === speaker.id)
+        })
+    })
+
+    return [speakersWithTalks, userProfiles]
 }
 
 const asSpeakerPage = (users: WithId<UserData>[]) => (speaker: SpeakerData): SpeakerPage => {
