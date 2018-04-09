@@ -113,7 +113,7 @@ export const convertPlaceDataToPlaceDataWithNumericPosition =
     (places: WithId<PlaceData>[]): WithId<PlaceDataWithNumericPosition>[] => {
         // TS is really unhappy if I inline this function in the map()
         const convertToNumericPosition = (place: WithId<PlaceData>): WithId<PlaceDataWithNumericPosition> => {
-            return { ...place, position: Number(place.position) }
+            return { ...place, position: Number.parseInt(place.position) }
         }
 
         return places.map(convertToNumericPosition)
