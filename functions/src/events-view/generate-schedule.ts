@@ -12,7 +12,7 @@ import {
     OtherEventData
 } from '../firestore/data'
 import { SchedulePage } from './events-view-data'
-import { flattenSpeakers, toEvents, convertPlaceDataToPlaceDataWithNumericPosition } from './mapping-functions'
+import { flattenSpeakers, toEvents, convertPlaceDataToPlaceWithIntPosition } from './mapping-functions'
 
 export const generateSchedule = (
     firebaseApp: FirebaseApp,
@@ -59,7 +59,7 @@ export const generateSchedule = (
             const events = toEvents(
                 talksOfTheDay,
                 otherEventsOfTheDay,
-                convertPlaceDataToPlaceDataWithNumericPosition(places),
+                convertPlaceDataToPlaceWithIntPosition(places),
                 submissions,
                 levels,
                 flattenedSpeakers,

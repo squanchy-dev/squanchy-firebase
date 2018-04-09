@@ -9,8 +9,7 @@ import {
     TrackData,
     UserData,
     OtherEventData,
-    PlaceDataWithNumericPosition,
-    PlaceData,
+    PlaceData
 } from '../firestore/data'
 
 export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<UserData>[]): Speaker[] => {
@@ -32,7 +31,7 @@ export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<U
 export const toEvents = (
     talks: WithId<TalkData>[],
     otherEvents: WithId<OtherEventData>[],
-    places: WithId<PlaceDataWithNumericPosition>[],
+    places: WithId<PlaceWithIntPosition>[],
     submissions: WithId<SubmissionData>[],
     levels: WithId<LevelData>[],
     flattenedSpeakers: Speaker[],
@@ -109,12 +108,18 @@ const typeFrom = (talkType: Optional<string>, track: Track | null) => {
     return type
 }
 
-export const convertPlaceDataToPlaceDataWithNumericPosition =
-    (places: WithId<PlaceData>[]): WithId<PlaceDataWithNumericPosition>[] => {
-        // TS is really unhappy if I inline this function in the map()
-        const convertToNumericPosition = (place: WithId<PlaceData>): WithId<PlaceDataWithNumericPosition> => {
-            return { ...place, position: Number.parseInt(place.position) }
-        }
-
-        return places.map(convertToNumericPosition)
+export const convertPlaceDataToPlaceWithIntPosition =
+    (places: WithId<PlaceData>[]): WithId<PlaceWithIntPosition>[] => {
+        // TS is really unhappy if I inline the convertToIntPosition function in the map()
+        return places.map(convertToIntPosition)
     }
+
+const convertToIntPosition = (place: WithId<PlaceData>): WithId<PlaceWithIntPosition> => {
+    return { ...place, position: Number.parseInt(place.position) }
+}
+
+interface PlaceWithIntPosition {
+    readonly floor: string
+    readonly name: string
+    readonly position: number
+}

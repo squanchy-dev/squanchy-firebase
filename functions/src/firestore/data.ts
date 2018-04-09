@@ -53,12 +53,6 @@ export interface PlaceData {
     readonly position: string
 }
 
-export interface PlaceDataWithNumericPosition {
-    readonly floor: string
-    readonly name: string
-    readonly position: number
-}
-
 export interface SubmissionData {
     readonly abstract: string
     readonly category: Reference<CategoryData>
