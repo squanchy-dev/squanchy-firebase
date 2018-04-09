@@ -9,7 +9,7 @@ import {
     SubmissionData,
     TrackData,
     UserData,
-    OtherEventData,
+    OtherEventData
 } from '../firestore/data'
 import { SchedulePage } from './events-view-data'
 import { flattenSpeakers, toEvents } from './mapping-functions'

@@ -8,7 +8,7 @@ import {
     SubmissionData,
     TrackData,
     UserData,
-    OtherEventData,
+    OtherEventData
 } from '../firestore/data'
 import { flattenSpeakers, toEvents } from './mapping-functions'
 import { Event } from './events-view-data'
