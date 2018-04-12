@@ -2,6 +2,7 @@ import { FirebaseApp } from '../firebase'
 import { WithId, RawCollection } from '../firestore/collection'
 import { SpeakerData, UserData, SubmissionData, TalkData } from '../firestore/data'
 import { SpeakerPage } from './speakers-view-data'
+import { normalizeTwitterHandle } from '../events-view/mapping-functions'
 
 export const generateSpeakers = (
     firebaseApp: FirebaseApp,
@@ -67,6 +68,6 @@ const asSpeakerPage = (users: WithId<UserData>[]) => (speaker: SpeakerData): Spe
         name: user.full_name,
         personalUrl: speaker.personal_url || null,
         photoUrl: user.profile_pic || null,
-        twitterUsername: speaker.twitter_handle || null
+        twitterUsername: normalizeTwitterHandle(speaker.twitter_handle) || null
     }
 }

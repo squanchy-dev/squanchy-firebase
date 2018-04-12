@@ -24,8 +24,23 @@ export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<U
         name: user.full_name,
         personalUrl: map(speaker.personal_url),
         photoUrl: user.profile_pic,
-        twitterUsername: speaker.twitter_handle,
+        twitterUsername: normalizeTwitterHandle(speaker.twitter_handle),
     }))
+}
+
+export const normalizeTwitterHandle = (rawHandle: string): string | null => {
+    const regex = /(?:^@?(\w{1,15})$|(?:(?:https?:\/\/)?twitter\.com\/)@?(\w{1,15}))/i
+    const matches = regex.exec(rawHandle)
+
+    if (matches === null || matches.length === 0) {
+        return null
+    } else if (matches[1] !== undefined) {
+        return matches[1]
+    } else if (matches[2] !== undefined) {
+        return matches[2]
+    } else {
+        return null
+    }
 }
 
 export const toEvents = (
