@@ -17,7 +17,8 @@ import { startPatch, endPatch } from './patch/transactions'
 const {
     algolia: algoliaConf,
     patch: patchConf,
-    twitter: twitterConf
+    twitter: twitterConf,
+    http: httpConf
 } = config()
 
 const firebaseApp = initializeApp()
@@ -25,13 +26,14 @@ const rawCollection = firestoreRawCollection(patchConf.vendor_name, firebaseApp)
 
 export = {
     fetchTwitter: https.onRequest(fetchTwitter(firebaseApp, fetch, twitterConf)),
-    generateEventDetails: https.onRequest(httpTrigger(generateEventDetails(firebaseApp, rawCollection))),
-    generateSchedule: https.onRequest(httpTrigger(generateSchedule(firebaseApp, rawCollection))),
-    generateSpeakers: https.onRequest(httpTrigger(generateSpeakers(firebaseApp, rawCollection))),
-    generateTracks: https.onRequest(httpTrigger(generateTracks(firebaseApp, rawCollection))),
-    indexContent: https.onRequest(httpTrigger(indexContent(rawCollection, algoliaConf))),
+    generateEventDetails: https.onRequest(
+        httpTrigger(generateEventDetails(firebaseApp, rawCollection), httpConf)),
+    generateSchedule: https.onRequest(httpTrigger(generateSchedule(firebaseApp, rawCollection), httpConf)),
+    generateSpeakers: https.onRequest(httpTrigger(generateSpeakers(firebaseApp, rawCollection), httpConf)),
+    generateTracks: https.onRequest(httpTrigger(generateTracks(firebaseApp, rawCollection), httpConf)),
+    indexContent: https.onRequest(httpTrigger(indexContent(rawCollection, algoliaConf), httpConf)),
     migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
-    startPatch: https.onRequest(startPatch(firebaseApp, patchConf)),
-    endPatch: https.onRequest(endPatch(firebaseApp, rawCollection, patchConf, algoliaConf))
+    startPatch: https.onRequest(startPatch(firebaseApp, patchConf, httpConf)),
+    endPatch: https.onRequest(endPatch(firebaseApp, rawCollection, patchConf, algoliaConf, httpConf))
 }

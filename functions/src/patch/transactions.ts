@@ -10,8 +10,9 @@ import { indexContent } from '../index-contents/index-contents'
 import { httpTrigger } from '../http/http-trigger'
 import { AlgoliaConfig } from '../index-contents/config'
 import { authorize } from './authorize'
+import { HttpConfig } from '../http/config'
 
-export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
+export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig, httpConfig: HttpConfig) => {
     const expressApp = express()
 
     expressApp.use(authorize(config.app_token))
@@ -38,7 +39,8 @@ export const startPatch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
                                 })
                         }))
                     })
-            }
+            },
+            httpConfig
         )(req, res)
     })
 
@@ -49,7 +51,8 @@ export const endPatch = (
     firebaseApp: FirebaseApp,
     collection: RawCollection,
     config: PatchConfig,
-    algoliaConfig: AlgoliaConfig
+    algoliaConfig: AlgoliaConfig,
+    httpConfig: HttpConfig
 ) => {
     const expressApp = express()
 
@@ -62,7 +65,7 @@ export const endPatch = (
             generateSpeakers(firebaseApp, collection)(),
             generateTracks(firebaseApp, collection)(),
             indexContent(collection, algoliaConfig)()
-        ]))(req, res)
+        ]), httpConfig)(req, res)
     })
 
     return expressApp
