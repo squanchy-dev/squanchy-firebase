@@ -11,21 +11,40 @@ import {
     OtherEventData,
     PlaceData
 } from '../firestore/data'
+import { logAsJsonString } from '../debug-log'
+import { isValidType } from '../firestore/event-type'
+import { isValidLevel } from '../firestore/experience-level'
 
 export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<UserData>[]): Speaker[] => {
     return speakers.map(speaker => ({
         speaker,
         user: users.find(({ id }) => speaker.user_profile.id === id)!
-    })).map(({ speaker, user }): Speaker => ({
-        bio: speaker.bio,
-        companyName: map(speaker.company_name),
-        companyUrl: map(speaker.company_url),
-        id: speaker.id,
-        name: user.full_name,
-        personalUrl: map(speaker.personal_url),
-        photoUrl: user.profile_pic,
-        twitterUsername: normalizeTwitterHandle(speaker.twitter_handle),
-    }))
+    })).map(({ speaker, user }): Speaker => {
+        if (speaker.id === undefined) {
+            throw Error(`Speaker missing ID: ${logAsJsonString(speaker)}`)
+        }
+        if (speaker.bio === undefined) {
+            throw Error(`Speaker missing bio: ${logAsJsonString(speaker.id)}`)
+        }
+        if (user === undefined) {
+            throw Error(`Unable to find user profile: ${logAsJsonString(speaker.user_profile.id)}` +
+                ` for speaker ${speaker.id}`)
+        }
+        if (user.full_name === undefined) {
+            throw Error(`User missing full_name: ${logAsJsonString(user.id)}`)
+        }
+
+        return ({
+            bio: speaker.bio,
+            companyName: map(speaker.company_name),
+            companyUrl: map(speaker.company_url),
+            id: speaker.id,
+            name: user.full_name,
+            personalUrl: map(speaker.personal_url),
+            photoUrl: user.profile_pic,
+            twitterUsername: normalizeTwitterHandle(speaker.twitter_handle)
+        })
+    })
 }
 
 export const normalizeTwitterHandle = (rawHandle: string): string | null => {
@@ -57,6 +76,16 @@ export const toEvents = (
     return allEvents.map(event => {
         const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
 
+        if (event.id === undefined) {
+            throw Error(`Event missing ID: ${logAsJsonString(event)}`)
+        }
+        if (event.start_time === undefined) {
+            throw Error(`Event missing start_time: ${logAsJsonString(event.id)}`)
+        }
+        if (event.end_time === undefined) {
+            throw Error(`Event missing end_time: ${logAsJsonString(event.id)}`)
+        }
+
         const baseEvent = {
             endTime: event.end_time,
             id: event.id,
@@ -64,21 +93,47 @@ export const toEvents = (
             startTime: event.start_time
         }
 
+        if (event.type === undefined) {
+            throw Error(`Event missing type: ${logAsJsonString(event.id)}`)
+        } else if (!isValidType(event.type)) {
+            throw Error(`Submission ${event.id} has invalid type ${event.type}`)
+        }
+
         if (isTalk(event)) {
             const submission = submissions.find(({ id }) => event.submission.id === id)!
+            if (submission === undefined) {
+                throw Error(`Unable to find submission with ID ${event.submission.id} for event ${event.id}`)
+            }
+
             const submissionLevel = submission.level
-            const level = submissionLevel
-                ? levels.find(({ id }) => submissionLevel.id === id)!.name
-                : null
+            let level = null
+            if (submissionLevel) {
+                const matchingLevel = levels.find(({ id }) => submissionLevel.id === id)
+                if (matchingLevel !== undefined) {
+                    level = matchingLevel.name
+                } else {
+                    throw Error(`Unsupported level ${logAsJsonString(submissionLevel)} found ` +
+                        `in submission ${submission.id}`)
+                }
+            }
+
             const talkSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
             const trackData = map(event.track, it => tracks.find(({ id }) => it.id === id) || null)
             const track = map(trackData, trackFrom)
             const type = typeFrom(event.type, track)
 
+            if (level !== undefined && !isValidLevel(level)) {
+                throw Error(`Submission ${submission.id} has invalid level ${level}`)
+            }
+
+            if (submission.title === undefined) {
+                throw Error(`Submission missing title: ${logAsJsonString(submission.id)}`)
+            }
+
             return {
                 ...baseEvent,
-                submission,
+                // submission,     TODO remove?
                 description: submission.abstract,
                 experienceLevel: level,
                 speakers: talkSpeakers.filter(it => it !== undefined && it !== null),
@@ -87,6 +142,10 @@ export const toEvents = (
                 type
             }
         } else {
+            if (event.title === undefined) {
+                throw Error(`Event missing title: ${logAsJsonString(event.id)}`)
+            }
+
             return {
                 ...baseEvent,
                 title: event.title,
