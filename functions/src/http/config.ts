@@ -1,5 +1,5 @@
-export interface HttpConfig { printErrorDetails: boolean }
+export interface HttpConfig { print_error_details: boolean }
 
-export const shouldPrintErrorDetails = ({ printErrorDetails }: HttpConfig) => {
-    return printErrorDetails
+export const shouldPrintErrorDetails = ({ print_error_details }: HttpConfig) => {
+    return print_error_details
 }
