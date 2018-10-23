@@ -105,17 +105,7 @@ export const toEvents = (
                 throw Error(`Unable to find submission with ID ${event.submission.id} for event ${event.id}`)
             }
 
-            const submissionLevel = submission.level
-            let level = null
-            if (submissionLevel) {
-                const matchingLevel = levels.find(({ id }) => submissionLevel.id === id)
-                if (matchingLevel !== undefined) {
-                    level = matchingLevel.name
-                } else {
-                    throw Error(`Unsupported level ${logAsJsonString(submissionLevel)} found ` +
-                        `in submission ${submission.id}`)
-                }
-            }
+            const level = extractLevelFrom(submission, levels)
 
             const talkSpeakers = (submission.speakers || [])
                 .map(({ id: speakerId }) => flattenedSpeakers.find(({ id }) => id === speakerId)!)
@@ -159,6 +149,20 @@ type AnyEvent = (WithId<OtherEventData> | WithId<TalkData>)
 
 const isTalk = (anyEvent: AnyEvent): anyEvent is WithId<TalkData> =>
     (anyEvent as TalkData).submission !== undefined
+
+const extractLevelFrom = (submission: WithId<SubmissionData>, levels: WithId<LevelData>[]) => {
+    const submissionLevel = submission.level
+    if (!submissionLevel) {
+        return null
+    }
+
+    const matchingLevel = levels.find(({ id }) => submissionLevel.id === id)
+    if (matchingLevel === undefined) {
+        throw Error(`Unsupported level ${logAsJsonString(submissionLevel)} found ` +
+            `in submission ${submission.id}`)
+    }
+    return matchingLevel.name
+}
 
 const trackFrom = (rawTrack: WithId<TrackData>): Track => ({
     accentColor: rawTrack.accent_color,
