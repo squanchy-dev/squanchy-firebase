@@ -11,7 +11,7 @@ import {
     OtherEventData,
     PlaceData
 } from '../firestore/data'
-import { logAsJsonString } from '../debug-log'
+import { asDebugJsonString } from '../debug-json-formatter'
 import { isValidType } from '../firestore/event-type'
 import { isValidLevel } from '../firestore/experience-level'
 
@@ -21,17 +21,17 @@ export const flattenSpeakers = (speakers: WithId<SpeakerData>[], users: WithId<U
         user: users.find(({ id }) => speaker.user_profile.id === id)!
     })).map(({ speaker, user }): Speaker => {
         if (speaker.id === undefined) {
-            throw Error(`Speaker missing ID: ${logAsJsonString(speaker)}`)
+            throw Error(`Speaker missing ID: ${asDebugJsonString(speaker)}`)
         }
         if (speaker.bio === undefined) {
-            throw Error(`Speaker missing bio: ${logAsJsonString(speaker.id)}`)
+            throw Error(`Speaker missing bio: ${asDebugJsonString(speaker.id)}`)
         }
         if (user === undefined) {
-            throw Error(`Unable to find user profile: ${logAsJsonString(speaker.user_profile.id)}` +
+            throw Error(`Unable to find user profile: ${asDebugJsonString(speaker.user_profile.id)}` +
                 ` for speaker ${speaker.id}`)
         }
         if (user.full_name === undefined) {
-            throw Error(`User missing full_name: ${logAsJsonString(user.id)}`)
+            throw Error(`User missing full_name: ${asDebugJsonString(user.id)}`)
         }
 
         return ({
@@ -77,13 +77,13 @@ export const toEvents = (
         const place = map(event.place, it => places.find(({ id }) => it.id === id) || null)
 
         if (event.id === undefined) {
-            throw Error(`Event missing ID: ${logAsJsonString(event)}`)
+            throw Error(`Event missing ID: ${asDebugJsonString(event)}`)
         }
         if (event.start_time === undefined) {
-            throw Error(`Event missing start_time: ${logAsJsonString(event.id)}`)
+            throw Error(`Event missing start_time: ${asDebugJsonString(event.id)}`)
         }
         if (event.end_time === undefined) {
-            throw Error(`Event missing end_time: ${logAsJsonString(event.id)}`)
+            throw Error(`Event missing end_time: ${asDebugJsonString(event.id)}`)
         }
 
         const baseEvent = {
@@ -94,7 +94,7 @@ export const toEvents = (
         }
 
         if (event.type === undefined) {
-            throw Error(`Event missing type: ${logAsJsonString(event.id)}`)
+            throw Error(`Event missing type: ${asDebugJsonString(event.id)}`)
         } else if (!isValidType(event.type)) {
             throw Error(`Submission ${event.id} has invalid type ${event.type}`)
         }
@@ -118,7 +118,7 @@ export const toEvents = (
             }
 
             if (submission.title === undefined) {
-                throw Error(`Submission missing title: ${logAsJsonString(submission.id)}`)
+                throw Error(`Submission missing title: ${asDebugJsonString(submission.id)}`)
             }
 
             return {
@@ -133,7 +133,7 @@ export const toEvents = (
             }
         } else {
             if (event.title === undefined) {
-                throw Error(`Event missing title: ${logAsJsonString(event.id)}`)
+                throw Error(`Event missing title: ${asDebugJsonString(event.id)}`)
             }
 
             return {
@@ -158,7 +158,7 @@ const extractLevelFrom = (submission: WithId<SubmissionData>, levels: WithId<Lev
 
     const matchingLevel = levels.find(({ id }) => submissionLevel.id === id)
     if (matchingLevel === undefined) {
-        throw Error(`Unsupported level ${logAsJsonString(submissionLevel)} found ` +
+        throw Error(`Unsupported level ${asDebugJsonString(submissionLevel)} found ` +
             `in submission ${submission.id}`)
     }
     return matchingLevel.name

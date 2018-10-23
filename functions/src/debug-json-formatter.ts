@@ -1,4 +1,4 @@
-export const logAsJsonString = (value: any) => {
+export const asDebugJsonString = (value: any) => {
     return JSON.stringify(value, jsonMetadataMuter, 2)
 }
 

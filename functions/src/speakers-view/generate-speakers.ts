@@ -3,7 +3,7 @@ import { WithId, RawCollection } from '../firestore/collection'
 import { SpeakerData, UserData, SubmissionData, TalkData } from '../firestore/data'
 import { SpeakerPage } from './speakers-view-data'
 import { normalizeTwitterHandle } from '../events-view/mapping-functions'
-import { logAsJsonString } from '../debug-log'
+import { asDebugJsonString } from '../debug-json-formatter'
 
 export const generateSpeakers = (
     firebaseApp: FirebaseApp,
@@ -49,11 +49,11 @@ const filterOutSpeakersWithNoTalks = (
         talks.some(talk => {
             if (talk.submission.id === undefined) {
                 throw Error(`Found talk with no submission ID: ${talk.id}\n` +
-                    `${logAsJsonString(talk.submission)}`)
+                    `${asDebugJsonString(talk.submission)}`)
             }
             if (submission.id === undefined) {
                 throw Error(`Found submission with no ID: ${submission.title}\n` +
-                    `${logAsJsonString(submission)}`)
+                    `${asDebugJsonString(submission)}`)
             }
             return talk.submission.id === submission.id
         })
@@ -62,13 +62,13 @@ const filterOutSpeakersWithNoTalks = (
     const speakersWithTalks = speakers.filter(speaker => {
         return talkSubmissions.some(submission => {
             if (submission.speakers === undefined) {
-                throw Error(`Unable to parse submission with ID ${logAsJsonString(submission.id)}: no speakers`)
+                throw Error(`Unable to parse submission with ID ${asDebugJsonString(submission.id)}: no speakers`)
             }
 
             return submission.speakers.some(submissionSpeaker => {
                 if (submissionSpeaker.id === undefined) {
-                    throw Error(`The submission with ID ${logAsJsonString(submission.id)} has a speaker with` +
-                        ` no ID:\n"${logAsJsonString(submissionSpeaker)}`)
+                    throw Error(`The submission with ID ${asDebugJsonString(submission.id)} has a speaker with` +
+                        ` no ID:\n"${asDebugJsonString(submissionSpeaker)}`)
                 }
                 return submissionSpeaker.id === speaker.id
             })
