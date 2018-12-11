@@ -17,8 +17,7 @@
     "express": "^4.16.2",
     "firebase-admin": "~5.11.0",
     "firebase-functions": "^1.0.0",
-    "node-fetch": "^1.7.3",
-    "request": "2.34"
+    "node-fetch": "^1.7.3"
   },
   "private": true,
   "devDependencies": {
