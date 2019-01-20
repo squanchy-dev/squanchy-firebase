@@ -17,7 +17,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
     expressApp.patch('/:collection/:id', (req, res) => {
         const collection = req.params.collection as string
         const id = req.params.id as string
-        const { fields } = req.body
+        const fields = req.body.fields || {}
 
         const validators = squanchyValidators[collection]
         if (!validators) {
@@ -29,6 +29,7 @@ const patch = (firebaseApp: FirebaseApp, config: PatchConfig) => {
         try {
             body = mapFields(firebaseApp, config.vendor_name)(fields)
         } catch (error) {
+            console.error(error)
             res.status(400).send(error.toString())
             return
         }
