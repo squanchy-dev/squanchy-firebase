@@ -38,7 +38,7 @@ const mapField = (app: FirebaseApp, vendorName: string) => (field: FieldValue): 
     } else if (isReference(field)) {
         const firestore = app.firestore()
 
-        const [, collection, id] = field.referenceValue.split('/')
+        const [id, collection] = field.referenceValue.split('/').reverse()
         return firestore.collection('raw_data').doc(vendorName).collection(collection).doc(id)
     } else if (isTimestamp(field)) {
         return new Date(field.timestampValue)
