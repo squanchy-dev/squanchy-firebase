@@ -9,4 +9,4 @@ Documentation is available on http://squanchy.net/. The project is maintained by
 
 ## License
 
-Squanchy Firebase is released under Apache 2.0 Licence. See the [`LICENCE`](LICENCE) file.
+Squanchy Firebase is released under Apache 2.0 Licence. See the [`LICENSE`](LICENSE) file.
