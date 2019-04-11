@@ -38,13 +38,11 @@ export const squanchyValidators: CollectionsValidator = {
         name: [required, isString]
     },
     speakers: {
-        address: [isString],
         bio: [required, isString],
         company_name: [isString],
         company_url: [isString],
         job_description: [isString],
         personal_url: [isString],
-        phone_number: [isString],
         twitter_handle: [isString],
         user_profile: [required, isReference]
     },
@@ -76,7 +74,6 @@ export const squanchyValidators: CollectionsValidator = {
         text_color: [isString]
     },
     user_profiles: {
-        email: [isString],
         full_name: [required, isString],
         profile_pic: [isString],
         user_id: [required, isString]

@@ -9,7 +9,6 @@ export const extract = <T> (ref: Reference<T>): Promise<T> => ref.get().then(it 
 
 export interface SpeakerData {
     readonly twitter_handle: string
-    readonly address: Optional<string>
     readonly job_description: Optional<string>
     readonly bio: string
     readonly company_name: Optional<string>

@@ -4,7 +4,6 @@ import fetch from 'node-fetch'
 
 import { generateEventDetails } from './events-view/generate-event-details'
 import { generateSchedule } from './events-view/generate-schedule'
-import { migrateToFirestore } from './migrateToFirestore'
 import { patch } from './patch/patch'
 import { indexContent } from './index-contents/index-contents'
 import { generateSpeakers } from './speakers-view/generate-speakers'
@@ -30,7 +29,6 @@ export = {
     generateSpeakers: https.onRequest(httpTrigger(generateSpeakers(firebaseApp, rawCollection))),
     generateTracks: https.onRequest(httpTrigger(generateTracks(firebaseApp, rawCollection))),
     indexContent: https.onRequest(httpTrigger(indexContent(rawCollection, algoliaConf))),
-    migrateToFirestore: https.onRequest(migrateToFirestore(firebaseApp)),
     patch: https.onRequest(patch(firebaseApp, patchConf)),
     startPatch: https.onRequest(startPatch(firebaseApp, patchConf)),
     endPatch: https.onRequest(endPatch(firebaseApp, rawCollection, patchConf, algoliaConf))
